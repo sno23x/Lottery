@@ -1,0 +1,440 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <title>ໂປຣແກຣມກວດສອບເລກ (Excel Compare)</title>
+    <style>
+        @font-face {
+            font-family: 'MyOfflineLaoFont';
+            src: url('NotoSansLao-Regular.ttf') format('truetype');
+        }
+
+        *, *::before, *::after {
+            font-family: 'MyOfflineLaoFont', Tahoma, sans-serif;
+            box-sizing: border-box;
+        }
+
+        /* ═══════════ Custom Scrollbar ═══════════ */
+        ::-webkit-scrollbar { width: 8px; height: 8px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #c4c4c4; border-radius: 10px; }
+        ::-webkit-scrollbar-thumb:hover { background: #999; }
+        body.dark-mode ::-webkit-scrollbar-thumb { background: #555; }
+        body.dark-mode ::-webkit-scrollbar-thumb:hover { background: #777; }
+
+        /* ═══════════ Base — Light Mode ═══════════ */
+        body {
+            padding: 16px;
+            background: linear-gradient(135deg, #f5f7fa 0%, #e4e8ec 100%);
+            color: #2d3436;
+            line-height: 1.6;
+            margin: 0;
+            min-height: 100vh;
+            transition: background 0.4s ease, color 0.4s ease;
+        }
+
+        .container {
+            max-width: 1040px;
+            margin: 0 auto;
+            background: rgba(255,255,255, 0.85);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            padding: 28px;
+            border-radius: 16px;
+            border: 1px solid rgba(255,255,255,0.6);
+            box-shadow: 0 8px 32px rgba(0,0,0,0.08);
+            transition: all 0.4s ease;
+        }
+
+        /* ═══════════ Header ═══════════ */
+        .header-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid rgba(0,0,0,0.06);
+            padding-bottom: 16px;
+            margin-bottom: 20px;
+        }
+        .header-title {
+            margin: 0;
+            color: #1a1a2e;
+            font-size: 20px;
+            letter-spacing: -0.3px;
+        }
+        .theme-btn {
+            background: linear-gradient(135deg, #e8eaed, #d4d7dc);
+            color: #444;
+            border: none;
+            padding: 8px 18px;
+            border-radius: 24px;
+            cursor: pointer;
+            font-size: 13px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+        }
+        .theme-btn:hover { transform: translateY(-1px); box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
+
+        .desc-text {
+            color: #64748b;
+            text-align: center;
+            margin-bottom: 20px;
+            font-size: 14px;
+            line-height: 1.7;
+        }
+
+        /* ═══════════ Flex Layout ═══════════ */
+        .flex-container { display: flex; gap: 16px; margin-bottom: 18px; }
+        .box { flex: 1; }
+        .box h3 {
+            margin: 0 0 8px 0;
+            color: #16a34a;
+            font-size: 15px;
+            text-align: center;
+            font-weight: 700;
+        }
+
+        /* ═══════════ Textarea ═══════════ */
+        textarea {
+            width: 100%;
+            height: 260px;
+            padding: 14px;
+            font-size: 14px;
+            border: 1.5px solid #e0e0e0;
+            border-radius: 12px;
+            background: rgba(255,255,255,0.9);
+            color: #2d3436;
+            white-space: pre;
+            transition: all 0.3s ease;
+            resize: vertical;
+            line-height: 1.5;
+        }
+        textarea:focus { outline: none; border-color: #3b82f6; box-shadow: 0 0 0 3px rgba(59,130,246,0.1); }
+        textarea::placeholder { color: #9ca3af; }
+
+        /* ═══════════ Compare Button ═══════════ */
+        button.compare-btn {
+            background: linear-gradient(135deg, #3b82f6, #2563eb);
+            color: white;
+            border: none;
+            padding: 14px 20px;
+            font-size: 17px;
+            cursor: pointer;
+            border-radius: 12px;
+            width: 100%;
+            font-weight: 700;
+            transition: all 0.3s ease;
+            margin-bottom: 20px;
+            letter-spacing: 0.3px;
+            box-shadow: 0 4px 14px rgba(59,130,246,0.25);
+        }
+        button.compare-btn:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(59,130,246,0.35); }
+        button.compare-btn:active { transform: translateY(0); }
+
+        /* ═══════════ Table ═══════════ */
+        table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+            margin-top: 14px;
+            background: rgba(255,255,255,0.8);
+            border-radius: 12px;
+            overflow: hidden;
+            border: 1px solid rgba(0,0,0,0.06);
+        }
+        th, td { border-bottom: 1px solid rgba(0,0,0,0.05); padding: 11px 14px; text-align: center; }
+        th {
+            background: linear-gradient(135deg, #f1f5f9, #e2e8f0);
+            color: #334155;
+            font-size: 13px;
+            font-weight: 700;
+            position: sticky;
+            top: 0;
+            z-index: 1;
+        }
+        tr:last-child td { border-bottom: none; }
+        tr:nth-child(even) { background: rgba(0,0,0,0.015); }
+        .diff-row { background: rgba(239,68,68,0.06) !important; }
+        .diff-row:hover { background: rgba(239,68,68,0.1) !important; }
+        .val-text { font-weight: 700; font-size: 15px; }
+        .v1 { color: #d97706; }
+        .v2 { color: #2563eb; }
+        .diff-amount { color: #ef4444; font-weight: 700; }
+
+        /* ═══════════ Summary/Error Boxes ═══════════ */
+        .summary-box {
+            background: linear-gradient(135deg, #dcfce7, #bbf7d0);
+            border-left: 4px solid #22c55e;
+            padding: 16px 20px;
+            border-radius: 12px;
+            margin-bottom: 18px;
+        }
+        .summary-box h3 { margin: 0; color: #166534; font-size: 16px; }
+
+        .error-box {
+            background: linear-gradient(135deg, #fef2f2, #fecaca);
+            border-left: 4px solid #ef4444;
+            padding: 16px 20px;
+            border-radius: 12px;
+            margin-bottom: 18px;
+        }
+        .error-box h3 { margin: 0; color: #dc2626; font-size: 16px; }
+
+        .excel-col {
+            background: linear-gradient(135deg, #e5e7eb, #f3f4f6);
+            color: #374151;
+            padding: 3px 10px;
+            border-radius: 6px;
+            font-weight: 700;
+            font-size: 13px;
+            border: 1px solid rgba(0,0,0,0.08);
+        }
+
+        /* ═══════════ Animation ═══════════ */
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+        #resultArea > * { animation: fadeIn 0.3s ease; }
+
+        /* ═══════════════════════════════════════════
+           DARK MODE
+           ═══════════════════════════════════════════ */
+        body.dark-mode {
+            background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 100%);
+            color: #e2e8f0;
+        }
+        body.dark-mode .container {
+            background: rgba(30,41,59,0.85);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border-color: rgba(255,255,255,0.06);
+            box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+        }
+        body.dark-mode .header-row { border-bottom-color: rgba(255,255,255,0.06); }
+        body.dark-mode .header-title { color: #f1f5f9; }
+        body.dark-mode .theme-btn {
+            background: linear-gradient(135deg, #334155, #475569);
+            color: #e2e8f0;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+        }
+        body.dark-mode .theme-btn:hover { box-shadow: 0 4px 16px rgba(0,0,0,0.3); }
+        body.dark-mode .desc-text { color: #94a3b8; }
+        body.dark-mode .box h3 { color: #4ade80; }
+
+        body.dark-mode textarea {
+            background: rgba(15,23,42,0.7);
+            color: #e2e8f0;
+            border-color: rgba(255,255,255,0.08);
+        }
+        body.dark-mode textarea:focus { border-color: #3b82f6; box-shadow: 0 0 0 3px rgba(59,130,246,0.15); }
+        body.dark-mode textarea::placeholder { color: #64748b; }
+
+        body.dark-mode button.compare-btn {
+            background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+            box-shadow: 0 4px 14px rgba(59,130,246,0.3);
+        }
+        body.dark-mode button.compare-btn:hover { box-shadow: 0 6px 20px rgba(59,130,246,0.4); }
+
+        body.dark-mode table {
+            background: rgba(15,23,42,0.5);
+            border-color: rgba(255,255,255,0.05);
+        }
+        body.dark-mode th {
+            background: linear-gradient(135deg, rgba(30,41,59,0.9), rgba(51,65,85,0.9));
+            color: #e2e8f0;
+        }
+        body.dark-mode th, body.dark-mode td { border-bottom-color: rgba(255,255,255,0.04); }
+        body.dark-mode tr:nth-child(even) { background: rgba(255,255,255,0.02); }
+        body.dark-mode .diff-row { background: rgba(239,68,68,0.1) !important; }
+        body.dark-mode .diff-row:hover { background: rgba(239,68,68,0.16) !important; }
+        body.dark-mode .v1 { color: #fbbf24; }
+        body.dark-mode .v2 { color: #60a5fa; }
+        body.dark-mode .diff-amount { color: #f87171; }
+
+        body.dark-mode .summary-box {
+            background: linear-gradient(135deg, rgba(22,101,52,0.3), rgba(21,128,61,0.2));
+            border-left-color: #22c55e;
+        }
+        body.dark-mode .summary-box h3 { color: #86efac; }
+
+        body.dark-mode .error-box {
+            background: linear-gradient(135deg, rgba(153,27,27,0.25), rgba(185,28,28,0.2));
+            border-left-color: #ef4444;
+        }
+        body.dark-mode .error-box h3 { color: #fca5a5; }
+
+        body.dark-mode .excel-col {
+            background: rgba(255,255,255,0.08);
+            color: #cbd5e1;
+            border-color: rgba(255,255,255,0.1);
+        }
+
+        /* ═══════════ Responsive ═══════════ */
+        @media (max-width: 680px) {
+            .flex-container { flex-direction: column; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="header-row">
+        <h2 class="header-title">🔍 ໂປຣແກຣມກວດສອບເລກ (Excel Compare)</h2>
+        <button id="themeToggle" class="theme-btn" onclick="toggleTheme()">🌙 ໂໝດມືດ</button>
+    </div>
+
+    <p class="desc-text">
+        <b>ວິທີໃຊ້:</b> ໃຫ້ກ໊ອບປີ້ (Copy) ຂໍ້ມູນທັງໝົດຈາກ Excel ຊີດທີ 1 ມາວາງໃສ່ຊ່ອງຊ້າຍ ແລະ ຊີດທີ 2 ມາວາງໃສ່ຊ່ອງຂວາ (ຕ້ອງກ໊ອບປີ້ໃຫ້ຂະໜາດເທົ່າກັນ)
+    </p>
+
+    <div class="flex-container">
+        <div class="box">
+            <h3>📄 ຂໍ້ມູນຈາກຊີດທີ 1 (ຕົ້ນສະບັບ)</h3>
+            <textarea id="sheet1" placeholder="ກ໊ອບປີ້ຂໍ້ມູນຈາກ Excel ມາວາງຢູ່ນີ້..."></textarea>
+        </div>
+        <div class="box">
+            <h3>📄 ຂໍ້ມູນຈາກຊີດທີ 2 (ໂຕກວດສອບ)</h3>
+            <textarea id="sheet2" placeholder="ກ໊ອບປີ້ຂໍ້ມູນຈາກ Excel ມາວາງຢູ່ນີ້..."></textarea>
+        </div>
+    </div>
+
+    <button class="compare-btn" onclick="compareData()">⚡ ວິເຄາະ ແລະ ກວດສອບຂໍ້ມູນ</button>
+
+    <div id="resultArea"></div>
+</div>
+
+<script>
+    // ── Theme Toggle ──
+    function toggleTheme() {
+        const body = document.body;
+        const btn = document.getElementById('themeToggle');
+        body.classList.toggle('dark-mode');
+        if (body.classList.contains('dark-mode')) {
+            localStorage.setItem('compare-theme', 'dark');
+            btn.innerHTML = '☀️ ໂໝດແຈ້ງ';
+        } else {
+            localStorage.setItem('compare-theme', 'light');
+            btn.innerHTML = '🌙 ໂໝດມືດ';
+        }
+    }
+    // Restore theme on load
+    if (localStorage.getItem('compare-theme') === 'dark') {
+        document.body.classList.add('dark-mode');
+        document.getElementById('themeToggle').innerHTML = '☀️ ໂໝດແຈ້ງ';
+    }
+
+    // ── Excel Compare Logic ──
+    function indexToExcelColumn(index) {
+        let colName = '';
+        let dividend = index + 1;
+        let modulo;
+
+        while (dividend > 0) {
+            modulo = (dividend - 1) % 26;
+            colName = String.fromCharCode(65 + modulo) + colName;
+            dividend = Math.floor((dividend - modulo) / 26);
+        }
+        return colName;
+    }
+
+    function parseTSV(text) {
+        return text.split('\n').map(row => row.split('\t').map(cell => cell.trim()));
+    }
+
+    function compareData() {
+        const text1 = document.getElementById('sheet1').value.trim();
+        const text2 = document.getElementById('sheet2').value.trim();
+        const resultArea = document.getElementById('resultArea');
+
+        if (!text1 || !text2) {
+            resultArea.innerHTML = "<div class='error-box'><h3 style='margin:0;'>⚠️ ກະລຸນາວາງຂໍ້ມູນໃຫ້ຄົບທັງ 2 ຊ່ອງກ່ອນກວດສອບ</h3></div>";
+            return;
+        }
+
+        const data1 = parseTSV(text1);
+        const data2 = parseTSV(text2);
+
+        let reportHTML = "";
+        let errorCount = 0;
+        let diffRecords = [];
+
+        const maxRows = Math.max(data1.length, data2.length);
+
+        for (let r = 0; r < maxRows; r++) {
+            const row1 = data1[r] || [];
+            const row2 = data2[r] || [];
+            const maxCols = Math.max(row1.length, row2.length);
+
+            for (let c = 0; c < maxCols; c++) {
+                let val1 = row1[c] !== undefined ? row1[c] : "";
+                let val2 = row2[c] !== undefined ? row2[c] : "";
+
+                let cleanVal1 = val1.replace(/,/g, '').trim();
+                let cleanVal2 = val2.replace(/,/g, '').trim();
+
+                if (cleanVal1 !== cleanVal2 && !(cleanVal1 === "" && cleanVal2 === "")) {
+                    errorCount++;
+
+                    let num1 = (cleanVal1 === "" || cleanVal1 === "-") ? 0 : parseFloat(cleanVal1);
+                    let num2 = (cleanVal2 === "" || cleanVal2 === "-") ? 0 : parseFloat(cleanVal2);
+                    let diffText = "-";
+
+                    if (!isNaN(num1) && !isNaN(num2)) {
+                        let diff = Math.abs(num1 - num2);
+                        diffText = diff.toLocaleString();
+                    }
+
+                    diffRecords.push({
+                        row: r + 1,
+                        col: indexToExcelColumn(c),
+                        v1: val1 === "" ? "(ວ່າງ)" : val1,
+                        v2: val2 === "" ? "(ວ່າງ)" : val2,
+                        diffAmt: diffText
+                    });
+                }
+            }
+        }
+
+        if (errorCount === 0) {
+            reportHTML = `
+                <div class="summary-box">
+                    <h3>✅ ຂໍ້ມູນກົງກັນ 100% ບໍ່ພົບຂໍ້ຜິດພາດເລີຍ!</h3>
+                </div>`;
+        } else {
+            reportHTML = `
+                <div class="error-box">
+                    <h3>⚠️ ພົບຈຸດທີ່ຂໍ້ມູນບໍ່ກົງກັນທັງໝົດ: ${errorCount} ຈຸດ</h3>
+                </div>
+
+                <table>
+                    <thead>
+                        <tr>
+                            <th>ແຖວທີ<br>(Row)</th>
+                            <th>ຄໍລຳ<br>(Column)</th>
+                            <th>ຂໍ້ມູນຊີດທີ 1<br><span style="font-size:11px;opacity:0.7;">(ຕົ້ນສະບັບ)</span></th>
+                            <th>ຂໍ້ມູນຊີດທີ 2<br><span style="font-size:11px;opacity:0.7;">(ໂຕກວດ)</span></th>
+                            <th>ຜົນຕ່າງ<br>(Difference)</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+            `;
+
+            diffRecords.forEach(record => {
+                reportHTML += `
+                    <tr class="diff-row">
+                        <td><b>${record.row}</b></td>
+                        <td><span class="excel-col">${record.col}</span></td>
+                        <td class="val-text v1">${record.v1}</td>
+                        <td class="val-text v2">${record.v2}</td>
+                        <td class="diff-amount">${record.diffAmt}</td>
+                    </tr>
+                `;
+            });
+
+            reportHTML += `</tbody></table>`;
+        }
+
+        resultArea.innerHTML = reportHTML;
+    }
+</script>
+
+</body>
+</html>
