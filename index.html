@@ -2182,6 +2182,7 @@
         const prefixCounts = {}, suffixCounts = {}, suffixCounts3d = {}, suffixCountsForced = {}, digitCounts = {};
         let totalNumbers = 0, totalLines = 0;
         let allTwoDigitNumbers = [];
+        let poolConsumed = false;  // true ຫຼັງແຖວ ຫຼັກ — clear pool ເມື່ອ 2-ໂຕ ໃໝ່ມາ
         let blockHits = {};
         let isBlockBaht = false;
         let blockLevelType = null;
@@ -2399,13 +2400,17 @@
                     totalNumbers++;
                     digitCounts[cleanNum.length] = (digitCounts[cleanNum.length] || 0) + 1;
                     addCount(cleanNum);
-                    if (cleanNum.length === 2) allTwoDigitNumbers.push(cleanNum);
+                    if (cleanNum.length === 2) {
+                        // ຖ້າ pool ຖືກໃຊ້ໂດຍ ຫຼັກ ກ່ອນໜ້າ — ເລີ່ມ pool ໃໝ່
+                        if (poolConsumed) { allTwoDigitNumbers = []; poolConsumed = false; }
+                        allTwoDigitNumbers.push(cleanNum);
+                    }
                     processWinLogic(cleanNum, suffixPart);
                 }
             });
-            // After a ຫຼັກ line, reset the 2-digit pool so the next ຫຼັກ
-            // only applies to 2-digit numbers introduced AFTER this line.
-            if (isHlak) allTwoDigitNumbers = [];
+            // ຫຼັງແຖວ ຫຼັກ — ໝາຍ pool ວ່າ "ໃຊ້ແລ້ວ" ແຕ່ບໍ່ clear ທັນທີ
+            // → ຫຼັກ ແຖວຕໍ່ໄປ ໃຊ້ pool ດຽວກັນໄດ້; 2-ໂຕ ໃໝ່ ຈະ trigger clear
+            if (isHlak) poolConsumed = true;
         });
 
         let duplicatePrefixes = "", uniquePrefixes = 0;
