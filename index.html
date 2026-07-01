@@ -1866,18 +1866,20 @@
                  date: d.label
              })},
 
-        // ໄທ — sanook.com (HTML scrape, GET), draws 1st & 16th of each month
-        // ບົນ = last 3 of 1st prize (6-digit) | ລ່າງ = เลขท้าย 2 ตัว
+        // ໄທ — sanook.com /lotto/ (HTML scrape, GET), draws 1st & 16th of each month
+        // ໝາຍເຫດ: /lotto/check/ ຖືກ block (503) — ໃຊ້ /lotto/ ໜ້າຫຼັກ (200)
+        // ຜົນງວດຫຼ້າສຸດຢູ່ໃນ JSON-LD: "รางวัลที่ 1 ...บาท\n<6ຕົວ> ... รางวัลเลขท้าย 2 ตัว ...บาท\n<2ຕົວ>"
+        // ບົນ = last 3 ຂອງລາງວັນທີ 1 | ລ່າງ = ເລກທ້າຍ 2 ຕົວ
         15: { label:'ໄທ (sanook)',
-              url:'https://news.sanook.com/lotto/check/',
-              siteUrl:'https://news.sanook.com/lotto/check/',
+              url:'https://news.sanook.com/lotto/',
+              siteUrl:'https://news.sanook.com/lotto/',
               parseHtmlFn: raw => {
-                  const f = raw.match(/(\d{6})<\/strong>[\s\S]{0,120}?รางวัลที่\s*1/)
-                         || raw.match(/รางวัลที่\s*1[\s\S]{0,120}?<strong>(\d{6})/);
-                  const l = raw.match(/(\d{2})<\/strong>[\s\S]{0,120}?เลขท้าย\s*2\s*ตัว/)
-                         || raw.match(/เลขท้าย\s*2\s*ตัว[\s\S]{0,120}?<strong>(\d{2})/);
+                  const f = raw.match(/รางวัลที่ 1[\s\S]{0,40}?บาท[\s\S]{0,12}?(\d{6})/)
+                         || raw.match(/lotto__number--first"?>(\d{6})</);
+                  const l = raw.match(/รางวัลเลขท้าย 2 ตัว[\s\S]{0,40}?บาท[\s\S]{0,12}?(\d{2})/);
+                  const d = raw.match(/งวด(?:ที่)?\s*(\d{1,2}\s*[฀-๿]+\s*25\d{2})/);
                   if (!f) throw new Error('ຍັງບໍ່ມີຜົນ');
-                  return { top: f[1].slice(-3), bot: l?.[1] || '', date: '' };
+                  return { top: f[1].slice(-3), bot: l ? l[1] : '', date: d ? d[1] : '' };
               }},
 
         // ລາວ — laodl.com (ຫວຍພັດທະນາລາວ)
