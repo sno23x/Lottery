@@ -1435,6 +1435,17 @@
                 <button class="tab-btn" id="tab-btn-stats" onclick="switchTab('stats')">📊 ສະຖິຕິ & ໃບ້</button>
             </div>
 
+            <!-- ເລກອັ້ນ: ໃຊ້ຮ່ວມກັນທຸກ tab -->
+            <details class="stats-section" id="cappedBox">
+                <summary>🚫 ເລກອັ້ນ (ຖືກແລ້ວຈ່າຍບໍ່ເຕັມ)</summary>
+                <p style="font-size: 13px; margin: 8px 0; line-height:1.6;">
+                    ພິມເລກໄດ້<b>ຫຼາຍແຖວ</b> ແລ້ວປິດກຸ່ມດ້ວຍ <code>=ອັດຕາຈ່າຍ</code>.<br>
+                    <code>ທຸກຫຼັກ=500</code> = ເຕີມຫຼັກ <b>0-9</b> ໃສ່ໜ້າເລກກຸ່ມນັ້ນ ໃຫ້ເປັນ 3 ໂຕ.<br>
+                    <span style="color:#555;">ປົກກະຕິ 2ໂຕ ຈ່າຍ 91 · 3ໂຕ ຈ່າຍ 650</span>
+                </p>
+                <textarea id="cappedInput" style="min-height:110px;" placeholder="ອັ້ນ:&#10;32 72&#10;11 51 91&#10;13 53 93&#10;=70&#10;ທຸກຫຼັກ =500"></textarea>
+            </details>
+
             <!-- Calculator Tab -->
             <div id="tab-calc">
                 <p style="font-size: 14px; margin-top: 0; margin-bottom: 15px; line-height:1.6;">
@@ -1557,6 +1568,8 @@
             document.body.classList.add('dark-mode');
             document.getElementById('themeToggle').innerHTML = '☀️ ໂໝດແຈ້ງ';
         }
+
+        syncHistoryFromWeb();   // ດຶງປະຫວັດຫວຍຈາກເວັບ (ບໍ່ block ການໂຫລດໜ້າ)
 
         let gridHTML = '';
         for(let i=1; i<=16; i++) {
@@ -2116,6 +2129,50 @@
     }
 
     // Collect winning numbers from ALL enabled switches (for normal mode)
+    // ເລກອັ້ນ: ອ່ານຊ່ອງ #cappedInput ➔ { "37": 70, "032": 500, ... }
+    // ຮູບແບບ: ພິມເລກໄດ້ຫຼາຍແຖວ ແລ້ວປິດກຸ່ມດ້ວຍ =<ອັດຕາຈ່າຍ>
+    //   ອັ້ນ:
+    //   32 72
+    //   11 51 91
+    //   =70          ➔ ເລກ 2ໂຕ ຂ້າງເທິງທັງໝົດ ຈ່າຍ 70
+    //   ທຸກຫຼັກ =500  ➔ ເຕີມຫຼັກ 0-9 ໃສ່ໜ້າເລກກຸ່ມນັ້ນ ເປັນ 3ໂຕ ຈ່າຍ 500
+    function getCappedRates() {
+        const raw = document.getElementById('cappedInput')?.value || '';
+        const map = {};
+        let pending = [];    // ເລກທີ່ລໍອັດຕາຈ່າຍ
+        let lastGroup = [];  // ກຸ່ມລ່າສຸດທີ່ໄດ້ອັດຕາແລ້ວ (ໃຫ້ "ທຸກຫຼັກ" ອ້າງອີງ)
+
+        raw.split('\n').forEach(line => {
+            // "ທຸກຫຼັກ =500" ➔ ເຕີມຫຼັກ 0-9 ໃສ່ໜ້າເລກ 2ໂຕ ຂອງກຸ່ມກ່ອນໜ້າ
+            const allHlak = line.match(/ທຸກ\s*(?:ຫຼັກ|ຫລັກ|ຫັຼກ|ຫັລກ|ຫັກ|ລັກ|หลัก|ลัก)\s*=\s*([\d.]+)/);
+            if (allHlak) {
+                const rate = parseFloat(allHlak[1]);
+                if (isFinite(rate) && rate >= 0) {
+                    lastGroup.filter(n => n.length === 2).forEach(n => {
+                        for (let d = 0; d <= 9; d++) map[`${d}${n}`] = rate;
+                    });
+                }
+                return;
+            }
+
+            const eq = line.indexOf('=');
+            (eq >= 0 ? line.slice(0, eq) : line).split(/[-.,\s]+/).forEach(tok => {
+                const num = tok.replace(/\D/g, '');
+                if (num.length === 2 || num.length === 3) pending.push(num);
+            });
+
+            if (eq >= 0) {
+                const rate = parseFloat(line.slice(eq + 1).replace(/[^\d.]/g, ''));
+                if (isFinite(rate) && rate >= 0 && pending.length) {
+                    pending.forEach(n => map[n] = rate);
+                    lastGroup = pending;
+                }
+                pending = [];
+            }
+        });
+        return map;
+    }
+
     function collectWinningNumbers() {
         let top = [], bot = [];
         for (let i = 1; i <= 16; i++) {
@@ -2140,6 +2197,13 @@
 
     // Pre-process: insert newlines to split inline multiple bets (e.g. "79=50 939=30")
     function preprocessBetText(text) {
+        // ⓪ Normalize Lao spelling variants of ບົນ / ລ່າງ (missing or mis-ordered combining marks)
+        //    ລາ່ງ, ລາງ່, ລາງ → ລ່າງ   |   ບນົ, ບນ → ບົນ
+        //    ລ່າງ must run first so the ບນ rule can see a canonical ລ່າງ after it.
+        text = text.replace(/ລາ(?:່ງ|ງ່|ງ)/g, 'ລ່າງ');
+        text = text.replace(/ບນົ/g, 'ບົນ');
+        text = text.replace(/ບນ(?=ລ່າງ|[^຀-໿]|$)/g, 'ບົນ');
+
         // ① Normalize price-separator keywords → '=' so the rest of the parser handles them uniformly.
         //    ໂຕລະ / ປ່ອງລະ / ໂຕ / ປ່ອງ  all mean "each / per number" = price indicator.
         //    Longer patterns must come first to avoid partial matches.
@@ -2490,12 +2554,19 @@
         const plusSignHTML = ` <span style="color:#adb5bd; font-size:16px; font-weight:bold; margin:0 5px;">+</span> `;
         if (hasHit) {
             let hitDetails = [], totalPrizeKip = 0, totalPrizeBaht = 0;
+            const cappedRates = getCappedRates();
             for (let wNum in blockHits) {
                 let hit = blockHits[wNum];
-                if (hit.topKip > 0)  { let a = (wNum.length===2)?hit.topKip*91000:hit.topKip*650000;  totalPrizeKip+=a;   hitDetails.push(`• ເລກ <b>${wNum}</b> = ${hit.topKip.toLocaleString()} <span style="font-size:12px;font-weight:normal;">(ບົນ)</span> ➔ ຮັບ: <b>${a.toLocaleString()}</b>`); }
-                if (hit.botKip > 0)  { let a = (wNum.length===2)?hit.botKip*91000:hit.botKip*650000;  totalPrizeKip+=a;   hitDetails.push(`• ເລກ <b>${wNum}</b> = ${hit.botKip.toLocaleString()} <span style="font-size:12px;font-weight:normal;">(ລ່າງ)</span> ➔ ຮັບ: <b>${a.toLocaleString()}</b>`); }
-                if (hit.topBaht > 0) { let a = (wNum.length===2)?hit.topBaht*91:hit.topBaht*650;     totalPrizeBaht+=a;  hitDetails.push(`• ເລກ <b>${wNum}</b> = <span class="price-text baht-price" style="font-size:inherit;">${hit.topBaht.toLocaleString()} ฿</span> <span style="font-size:12px;font-weight:normal;">(ບົນ)</span> ➔ ຮັບ: <b style="color:#00e676;">${a.toLocaleString()} ฿</b>`); }
-                if (hit.botBaht > 0) { let a = (wNum.length===2)?hit.botBaht*91:hit.botBaht*650;     totalPrizeBaht+=a;  hitDetails.push(`• ເລກ <b>${wNum}</b> = <span class="price-text baht-price" style="font-size:inherit;">${hit.botBaht.toLocaleString()} ฿</span> <span style="font-size:12px;font-weight:normal;">(ລ່າງ)</span> ➔ ຮັບ: <b style="color:#00e676;">${a.toLocaleString()} ฿</b>`); }
+                // ເລກອັ້ນ: ໃຊ້ອັດຕາທີ່ຜູ້ຂາຍກຳນົດ ແທນ 91 (2ໂຕ) / 650 (3ໂຕ)
+                const capRate = cappedRates[wNum];
+                const isCapped = capRate !== undefined;
+                const rate = isCapped ? capRate : ((wNum.length===2) ? 91 : 650);
+                const capTag = isCapped ? ` <span style="font-size:12px;font-weight:normal;color:#f59e0b;">(ອັ້ນ ${capRate})</span>` : '';
+                const pay = (amt, mult) => Math.round(amt * rate * mult * 100) / 100;
+                if (hit.topKip > 0)  { let a = pay(hit.topKip, 1000);  totalPrizeKip+=a;   hitDetails.push(`• ເລກ <b>${wNum}</b> = ${hit.topKip.toLocaleString()} <span style="font-size:12px;font-weight:normal;">(ບົນ)</span>${capTag} ➔ ຮັບ: <b>${a.toLocaleString()}</b>`); }
+                if (hit.botKip > 0)  { let a = pay(hit.botKip, 1000);  totalPrizeKip+=a;   hitDetails.push(`• ເລກ <b>${wNum}</b> = ${hit.botKip.toLocaleString()} <span style="font-size:12px;font-weight:normal;">(ລ່າງ)</span>${capTag} ➔ ຮັບ: <b>${a.toLocaleString()}</b>`); }
+                if (hit.topBaht > 0) { let a = pay(hit.topBaht, 1);    totalPrizeBaht+=a;  hitDetails.push(`• ເລກ <b>${wNum}</b> = <span class="price-text baht-price" style="font-size:inherit;">${hit.topBaht.toLocaleString()} ฿</span> <span style="font-size:12px;font-weight:normal;">(ບົນ)</span>${capTag} ➔ ຮັບ: <b style="color:#00e676;">${a.toLocaleString()} ฿</b>`); }
+                if (hit.botBaht > 0) { let a = pay(hit.botBaht, 1);    totalPrizeBaht+=a;  hitDetails.push(`• ເລກ <b>${wNum}</b> = <span class="price-text baht-price" style="font-size:inherit;">${hit.botBaht.toLocaleString()} ฿</span> <span style="font-size:12px;font-weight:normal;">(ລ່າງ)</span>${capTag} ➔ ຮັບ: <b style="color:#00e676;">${a.toLocaleString()} ฿</b>`); }
             }
             let pArr = [];
             if (totalPrizeKip > 0)  pArr.push(`${totalPrizeKip.toLocaleString()}`);
@@ -3113,6 +3184,33 @@
     const saveHist  = h => localStorage.setItem(HIST_KEY, JSON.stringify(h));
     const loadPreds = () => { try { return JSON.parse(localStorage.getItem(PRED_KEY) || '[]'); } catch(_) { return []; } };
     const savePreds = p => localStorage.setItem(PRED_KEY, JSON.stringify(p));
+
+    // ດຶງປະຫວັດຫວຍຈາກ lotto-history.json (folder ດຽວກັບໜ້າເວັບ) ອັດຕະໂນມັດຕອນເປີດ
+    // ເພີ່ມສະເພາະວັນທີທີ່ຍັງບໍ່ມີ ➔ ຂໍ້ມູນທີ່ປ້ອນເອງໃນເຄື່ອງຈະບໍ່ຖືກທັບ
+    async function syncHistoryFromWeb() {
+        try {
+            const resp = await fetch('lotto-history.json', { cache: 'no-cache' });
+            if (!resp.ok) return;
+            const data = await resp.json();
+            if (!data || !data.history) return;
+            const local = loadHist();
+            let added = 0;
+            for (const [draw, list] of Object.entries(data.history)) {
+                if (!Array.isArray(list)) continue;
+                if (!local[draw]) local[draw] = [];
+                const have = new Set(local[draw].map(e => e.date));
+                list.forEach(e => {
+                    if (e && e.date && !have.has(e.date)) { local[draw].push(e); have.add(e.date); added++; }
+                });
+                local[draw].sort((a, b) => b.date.localeCompare(a.date));
+            }
+            if (added) {
+                saveHist(local);
+                if (document.getElementById('tab-stats')?.style.display !== 'none') renderStats();
+                console.log(`[ປະຫວັດຫວຍ] ເພີ່ມ ${added} ງວດ ຈາກເວັບ`);
+            }
+        } catch (_) { /* ເປີດແບບ file:// ຫຼື ບໍ່ມີໄຟລ໌ ➔ ຂ້າມ ບໍ່ຕ້ອງແຈ້ງເຕືອນ */ }
+    }
 
     function addHistory(drawName, top, bot, dateStr) {
         if (!drawName || (!top && !bot)) return;
