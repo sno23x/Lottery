@@ -1407,6 +1407,7 @@
                 <summary>
                     <span style="font-size:18px; font-weight:bold;">🏆 ແຜງຄວບຄຸມຜົນຫວຍ</span>
                     <span style="font-size:12px; color:inherit; opacity:0.7;">(ຄລິກເປີດ/ປິດ)</span>
+                    <span id="autoFillNote" style="font-size:12px; color:#16a34a; font-weight:bold; margin-left:6px;"></span>
                 </summary>
                 <div style="display:flex;gap:6px;margin-top:10px;align-items:center;">
                     <button id="lockResultsBtn" onclick="toggleLockResults()" style="background:#37474f;">🔓 ລັອກຜົນຫວຍ</button>
@@ -3210,6 +3211,61 @@
                 console.log(`[ປະຫວັດຫວຍ] ເພີ່ມ ${added} ງວດ ຈາກເວັບ`);
             }
         } catch (_) { /* ເປີດແບບ file:// ຫຼື ບໍ່ມີໄຟລ໌ ➔ ຂ້າມ ບໍ່ຕ້ອງແຈ້ງເຕືອນ */ }
+        finally { fillPanelFromHistory(); }   // ຕື່ມແຜງທຸກກໍລະນີ (ໃຊ້ຂໍ້ມູນທີ່ມີໃນເຄື່ອງ)
+    }
+
+    // ຕື່ມເລກງວດລ່າສຸດ ຈາກປະຫວັດ ໃສ່ແຜງຄວບຄຸມຜົນຫວຍ ອັດຕະໂນມັດ
+    // ─ ຫາວັນທີໃໝ່ສຸດທີ່ມີ (D) ແລ້ວໃຊ້ເລກຂອງວັນນັ້ນ
+    // ─ ຫວຍໃດບໍ່ມີງວດຂອງວັນ D ➔ ລ້າງຊ່ອງໃຫ້ຫວ່າງ (ບໍ່ປະເລກມື້ວານຄ້າງໄວ້)
+    // ─ ທັບຄ່າເກົ່າສະເໝີ ແຕ່ບໍ່ແຕະ switch ເປີດ/ປິດ ຂອງແຕ່ລະຫວຍ
+    function fillPanelFromHistory() {
+        const hist = loadHist();
+        const allDates = Object.values(hist).flat().map(e => e && e.date).filter(Boolean);
+        if (!allDates.length) return;
+        const D = allDates.sort().pop();          // ວັນທີໃໝ່ສຸດທີ່ມີຂໍ້ມູນ
+
+        const d = new Date();
+        const today = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+        let filled = 0, cleared = 0;
+
+        for (let i = 1; i <= 16; i++) {
+            const topEl = document.getElementById(`lotto-top-${i}`);
+            const botEl = document.getElementById(`lotto-bot-${i}`);
+            if (!topEl || !botEl) continue;
+            const entry = (hist[lottoNames[i-1]] || []).find(e => e.date === D);
+
+            if (entry) { topEl.value = entry.top3 || ''; botEl.value = entry.bot3 || ''; filled++; }
+            else {
+                if (topEl.value || botEl.value) cleared++;   // ລ້າງເລກງວດເກົ່າອອກ
+                topEl.value = ''; botEl.value = '';
+            }
+
+            const chkEl   = document.getElementById(`lotto-check-${i}`);
+            const titleEl = document.querySelector(`#lottoGrid .lotto-card:nth-child(${i}) .lotto-title-input`);
+            localStorage.setItem(`lotto-card-${i}`, JSON.stringify({
+                top: topEl.value, bot: botEl.value,
+                check: chkEl?.checked || false,        // ບໍ່ປ່ຽນ switch
+                title: titleEl?.value || ''
+            }));
+        }
+
+        const note = document.getElementById('autoFillNote');
+        if (note) {
+            clearTimeout(note._fadeT); clearTimeout(note._clearT);
+            note.style.transition = 'opacity 0.6s';
+            note.style.opacity = '1';
+            const isToday = (D === today);
+            note.style.color = isToday ? '#16a34a' : '#f59e0b';
+            note.textContent = isToday
+                ? `✅ ຜົນຫວຍວັນທີ ${fmtDate(D)}`
+                : `📅 ຜົນຫວຍວັນທີ ${fmtDate(D)} (ບໍ່ແມ່ນມື້ນີ້)`;
+            if (isToday) {   // ເປັນເລກມື້ນີ້ ➔ ຫລົບຫາຍເອງໃນ 30 ວິ | ບໍ່ແມ່ນມື້ນີ້ ➔ ຄ້າງໄວ້ເຕືອນ
+                note._fadeT  = setTimeout(() => { note.style.opacity = '0'; }, 30000);
+                note._clearT = setTimeout(() => { note.textContent = ''; note.style.opacity = '1'; }, 30700);
+            }
+        }
+        updateHoverPreview();
+        console.log(`[ແຜງຄວບຄຸມ] ງວດ ${D} — ຕື່ມ ${filled} ຫວຍ, ລ້າງງວດເກົ່າ ${cleared} ຫວຍ`);
     }
 
     function addHistory(drawName, top, bot, dateStr) {
