@@ -1,0 +1,112 @@
+<!doctype html>
+<html lang="th">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>KhianPad – โปรแกรมเขียนโค้ดและข้อความ ฟรี สำหรับ Mac และเว็บ</title>
+  <meta name="description" content="KhianPad โปรแกรมแก้ไขข้อความและซอร์สโค้ดแบบแท็บ ใช้งานฟรีบน macOS 11 Big Sur ขึ้นไป และในเว็บเบราว์เซอร์" />
+  <link rel="icon" href="../favicon.svg" type="image/svg+xml" />
+  <script type="module" crossorigin src="../assets/about-C7Wl42uo.js"></script>
+  <link rel="modulepreload" crossorigin href="../assets/modulepreload-polyfill-B5Qt9EMX.js">
+  <link rel="stylesheet" crossorigin href="../assets/about-fOWEvTiB.css">
+</head>
+<body>
+  <header class="nav">
+    <a class="brand" href="#top"><img src="../favicon.svg" alt="" width="28" height="28" /> KhianPad</a>
+    <nav>
+      <a href="#features" data-th="ความสามารถ" data-en="Features">ความสามารถ</a>
+      <a href="#download" data-th="ดาวน์โหลด" data-en="Download">ดาวน์โหลด</a>
+      <a href="#install" data-th="วิธีติดตั้ง" data-en="Install">วิธีติดตั้ง</a>
+      <a href="#faq" data-th="คำถามที่พบบ่อย" data-en="FAQ">คำถามที่พบบ่อย</a>
+      <button class="lang" id="langBtn" type="button" aria-label="Switch language">EN</button>
+    </nav>
+  </header>
+
+  <main id="top">
+    <section class="hero">
+      <div class="hero-text">
+        <p class="eyebrow" data-th="ฟรี · ไม่มีโฆษณา · ไฟล์อยู่ในเครื่องคุณ" data-en="Free · No ads · Your files stay on your computer">ฟรี · ไม่มีโฆษณา · ไฟล์อยู่ในเครื่องคุณ</p>
+        <h1 data-th="เขียนโค้ดและจดบันทึก&lt;br&gt;ได้ไวบน Mac ของคุณ" data-en="Write code and notes&lt;br&gt;fast on your Mac">เขียนโค้ดและจดบันทึก<br>ได้ไวบน Mac ของคุณ</h1>
+        <p class="lead" data-th="KhianPad คือโปรแกรมแก้ไขข้อความแบบแท็บ มีไฮไลต์สีโค้ดกว่า 30 ภาษา ค้นหาและแทนที่ บุ๊คมาร์ค มาโคร และอีกมาก ใช้ได้บน macOS 11 Big Sur ขึ้นไป หรือเปิดใช้ในเบราว์เซอร์ได้ทันที" data-en="KhianPad is a tabbed text editor with syntax colours for 30+ languages, find &amp; replace, bookmarks, macros and more. It runs on macOS 11 Big Sur or later, or right in your browser.">KhianPad คือโปรแกรมแก้ไขข้อความแบบแท็บ มีไฮไลต์สีโค้ดกว่า 30 ภาษา ค้นหาและแทนที่ บุ๊คมาร์ค มาโคร และอีกมาก ใช้ได้บน macOS 11 Big Sur ขึ้นไป หรือเปิดใช้ในเบราว์เซอร์ได้ทันที</p>
+        <div class="cta">
+          <a class="btn primary" href="#download" data-th="ดาวน์โหลดสำหรับ Mac" data-en="Download for Mac">ดาวน์โหลดสำหรับ Mac</a>
+          <a class="btn ghost" href="../" data-th="ใช้งานบนเว็บ" data-en="Open in browser">ใช้งานบนเว็บ</a>
+        </div>
+        <p class="small" data-th="รองรับ macOS 11.7 (Big Sur) ทั้ง Mac รุ่น Intel และชิป Apple (M1/M2)" data-en="Works on macOS 11.7 (Big Sur) on both Intel and Apple-chip (M1/M2) Macs">รองรับ macOS 11.7 (Big Sur) ทั้ง Mac รุ่น Intel และชิป Apple (M1/M2)</p>
+      </div>
+      <div class="mock" aria-hidden="true">
+        <div class="mock-title"><span class="dot r"></span><span class="dot y"></span><span class="dot g"></span><span class="mock-name">hello.py — KhianPad</span></div>
+        <div class="mock-menu"><span>ไฟล์</span><span>แก้ไข</span><span>ค้นหา</span><span>มุมมอง</span><span>ภาษา</span><span>ตั้งค่า</span></div>
+        <div class="mock-tabs"><span class="t on">hello.py</span><span class="t">notes.txt</span><span class="t dirty">index.html</span></div>
+        <pre class="mock-code"><span class="ln">1</span><span class="c"># ทักทายผู้ใช้</span>
+<span class="ln">2</span><span class="k">def</span> greet(name):
+<span class="ln">3</span>    <span class="k">return</span> <span class="s">"สวัสดี "</span> + name
+<span class="ln">4</span>
+<span class="ln">5</span><span class="k">for</span> i <span class="k">in</span> range(<span class="n">3</span>):
+<span class="ln">6</span>    print(greet(<span class="s">"KhianPad"</span>))</pre>
+        <div class="mock-status"><span>Python file</span><span>Ln: 6  Col: 30</span><span>Unix (LF)</span><span>UTF-8</span></div>
+      </div>
+    </section>
+
+    <section id="features" class="features">
+      <h2 data-th="ทุกอย่างที่ต้องใช้ในโปรแกรมเดียว" data-en="Everything you need in one editor">ทุกอย่างที่ต้องใช้ในโปรแกรมเดียว</h2>
+      <div class="grid">
+        <article><div class="ic">🗂️</div><h3 data-th="หลายแท็บ" data-en="Tabs">หลายแท็บ</h3><p data-th="เปิดหลายไฟล์พร้อมกัน ลากสลับลำดับ ปักหมุด และจำไฟล์ที่เปิดค้างไว้ให้ครั้งหน้า" data-en="Open many files at once, drag to reorder, pin tabs, and pick up where you left off.">เปิดหลายไฟล์พร้อมกัน ลากสลับลำดับ ปักหมุด และจำไฟล์ที่เปิดค้างไว้ให้ครั้งหน้า</p></article>
+        <article><div class="ic">🎨</div><h3 data-th="สีโค้ด 30+ ภาษา" data-en="30+ languages">สีโค้ด 30+ ภาษา</h3><p data-th="Python, JavaScript, HTML, CSS, PHP, C/C++, Java, SQL, Markdown และอื่น ๆ พร้อมพับโค้ดได้" data-en="Python, JavaScript, HTML, CSS, PHP, C/C++, Java, SQL, Markdown and more, with code folding.">Python, JavaScript, HTML, CSS, PHP, C/C++, Java, SQL, Markdown และอื่น ๆ พร้อมพับโค้ดได้</p></article>
+        <article><div class="ic">🔍</div><h3 data-th="ค้นหาและแทนที่" data-en="Find &amp; replace">ค้นหาและแทนที่</h3><p data-th="ค้นหาแบบปกติ แบบขยาย หรือ Regex ในไฟล์เดียวหรือทุกไฟล์ที่เปิด พร้อมหน้าต่างผลการค้นหา" data-en="Normal, extended or regex search in one file or all open files, with a results window.">ค้นหาแบบปกติ แบบขยาย หรือ Regex ในไฟล์เดียวหรือทุกไฟล์ที่เปิด พร้อมหน้าต่างผลการค้นหา</p></article>
+        <article><div class="ic">🔖</div><h3 data-th="บุ๊คมาร์คและไฮไลต์" data-en="Bookmarks &amp; marks">บุ๊คมาร์คและไฮไลต์</h3><p data-th="คลิกขอบซ้ายเพื่อบุ๊คมาร์คบรรทัด และระบายสีคำได้ 5 สี" data-en="Click the margin to bookmark a line, and colour words with five highlight styles.">คลิกขอบซ้ายเพื่อบุ๊คมาร์คบรรทัด และระบายสีคำได้ 5 สี</p></article>
+        <article><div class="ic">⏺️</div><h3 data-th="มาโคร" data-en="Macros">มาโคร</h3><p data-th="บันทึกการพิมพ์แล้วเล่นซ้ำกี่ครั้งก็ได้ ช่วยงานซ้ำ ๆ ให้เสร็จในคลิกเดียว" data-en="Record your typing and replay it as many times as you like.">บันทึกการพิมพ์แล้วเล่นซ้ำกี่ครั้งก็ได้ ช่วยงานซ้ำ ๆ ให้เสร็จในคลิกเดียว</p></article>
+        <article><div class="ic th">ก</div><h3 data-th="ภาษาไทยเต็มรูปแบบ" data-en="Thai friendly">ภาษาไทยเต็มรูปแบบ</h3><p data-th="เมนูภาษาไทย/อังกฤษ เปิดไฟล์ UTF-8 และ ANSI (TIS-620) ได้ถูกต้อง" data-en="Thai or English menus; opens UTF-8 and ANSI (TIS-620) files correctly.">เมนูภาษาไทย/อังกฤษ เปิดไฟล์ UTF-8 และ ANSI (TIS-620) ได้ถูกต้อง</p></article>
+        <article><div class="ic">🌙</div><h3 data-th="โหมดมืดและธีม" data-en="Dark mode &amp; themes">โหมดมืดและธีม</h3><p data-th="เลือกได้ 6 ธีม ซูมตัวอักษร ตัดบรรทัดอัตโนมัติ และแสดงช่องว่าง/สิ้นสุดบรรทัด" data-en="Six themes, zoom, word wrap and visible spaces and line endings.">เลือกได้ 6 ธีม ซูมตัวอักษร ตัดบรรทัดอัตโนมัติ และแสดงช่องว่าง/สิ้นสุดบรรทัด</p></article>
+        <article><div class="ic">🧰</div><h3 data-th="เครื่องมือในตัว" data-en="Built-in tools">เครื่องมือในตัว</h3><p data-th="MD5/SHA, Base64, URL encode, เรียงบรรทัด ลบบรรทัดซ้ำ ตัวแก้ไขคอลัมน์ และแผนที่เอกสาร" data-en="MD5/SHA, Base64, URL encoding, line sorting, duplicate removal, column editor and a document map.">MD5/SHA, Base64, URL encode, เรียงบรรทัด ลบบรรทัดซ้ำ ตัวแก้ไขคอลัมน์ และแผนที่เอกสาร</p></article>
+      </div>
+    </section>
+
+    <section id="download" class="download">
+      <h2 data-th="ดาวน์โหลด KhianPad สำหรับ Mac" data-en="Download KhianPad for Mac">ดาวน์โหลด KhianPad สำหรับ Mac</h2>
+      <p class="center muted" data-th="ไม่แน่ใจว่า Mac เป็นรุ่นไหน? คลิกเมนู  › About This Mac ถ้าเห็นคำว่า “Intel” ให้เลือกรุ่น Intel ถ้าเห็น “Apple M1/M2” ให้เลือกชิป Apple" data-en="Not sure which Mac you have? Open  › About This Mac: “Intel” means the Intel build, “Apple M1/M2” means the Apple chip build.">ไม่แน่ใจว่า Mac เป็นรุ่นไหน? คลิกเมนู  › About This Mac ถ้าเห็นคำว่า “Intel” ให้เลือกรุ่น Intel ถ้าเห็น “Apple M1/M2” ให้เลือกชิป Apple</p>
+      <div class="dl-cards">
+        <a class="dl" href="../downloads/KhianPad-mac-intel.zip" download>
+          <span class="chip">Intel</span>
+          <strong data-th="Mac รุ่น Intel" data-en="Intel Mac">Mac รุ่น Intel</strong>
+          <span class="muted">macOS 11 Big Sur+ · .zip</span>
+        </a>
+        <a class="dl" href="../downloads/KhianPad-mac-apple-silicon.zip" download>
+          <span class="chip apple">M1 / M2</span>
+          <strong data-th="Mac ชิป Apple" data-en="Apple-chip Mac">Mac ชิป Apple</strong>
+          <span class="muted">macOS 11 Big Sur+ · .zip</span>
+        </a>
+        <a class="dl web" href="../">
+          <span class="chip web">Web</span>
+          <strong data-th="ใช้ในเบราว์เซอร์" data-en="Use in the browser">ใช้ในเบราว์เซอร์</strong>
+          <span class="muted" data-th="ไม่ต้องติดตั้ง · Safari / Chrome" data-en="No install · Safari / Chrome">ไม่ต้องติดตั้ง · Safari / Chrome</span>
+        </a>
+      </div>
+    </section>
+
+    <section id="install" class="install">
+      <h2 data-th="ติดตั้งบน macOS 11 ใน 4 ขั้นตอน" data-en="Install on macOS 11 in 4 steps">ติดตั้งบน macOS 11 ใน 4 ขั้นตอน</h2>
+      <ol class="steps">
+        <li><b>1</b><div><h3 data-th="แตกไฟล์ zip" data-en="Unzip">แตกไฟล์ zip</h3><p data-th="ดับเบิลคลิกไฟล์ที่ดาวน์โหลดมา จะได้โฟลเดอร์ KhianPad" data-en="Double-click the downloaded file to get the KhianPad folder.">ดับเบิลคลิกไฟล์ที่ดาวน์โหลดมา จะได้โฟลเดอร์ KhianPad</p></div></li>
+        <li><b>2</b><div><h3 data-th="คลิกขวาที่ “Install KhianPad.command”" data-en="Right-click “Install KhianPad.command”">คลิกขวาที่ “Install KhianPad.command”</h3><p data-th="เลือก Open (เปิด) แล้วกด Open อีกครั้ง โปรแกรมจะถูกคัดลอกไปไว้ใน Applications ให้เอง" data-en="Choose Open, then Open again. It copies the app into Applications for you.">เลือก Open (เปิด) แล้วกด Open อีกครั้ง โปรแกรมจะถูกคัดลอกไปไว้ใน Applications ให้เอง</p></div></li>
+        <li><b>3</b><div><h3 data-th="เปิด KhianPad" data-en="Open KhianPad">เปิด KhianPad</h3><p data-th="หาได้จาก Launchpad หรือโฟลเดอร์ Applications (ครั้งแรกถ้ามีคำเตือน ให้คลิกขวา › Open)" data-en="Find it in Launchpad or Applications (if macOS warns the first time, right-click › Open).">หาได้จาก Launchpad หรือโฟลเดอร์ Applications (ครั้งแรกถ้ามีคำเตือน ให้คลิกขวา › Open)</p></div></li>
+        <li><b>4</b><div><h3 data-th="เริ่มเขียนได้เลย" data-en="Start writing">เริ่มเขียนได้เลย</h3><p data-th="ลากไฟล์มาวางบนหน้าต่าง หรือกด ⌘O เพื่อเปิดไฟล์" data-en="Drop files on the window or press ⌘O to open one.">ลากไฟล์มาวางบนหน้าต่าง หรือกด ⌘O เพื่อเปิดไฟล์</p></div></li>
+      </ol>
+    </section>
+
+    <section id="faq" class="faq">
+      <h2 data-th="คำถามที่พบบ่อย" data-en="FAQ">คำถามที่พบบ่อย</h2>
+      <details><summary data-th="ฟรีจริงไหม?" data-en="Is it really free?">ฟรีจริงไหม?</summary><p data-th="ฟรีทั้งหมด ไม่มีโฆษณา และไม่ต้องสมัครสมาชิก" data-en="Yes. No ads and no account needed.">ฟรีทั้งหมด ไม่มีโฆษณา และไม่ต้องสมัครสมาชิก</p></details>
+      <details><summary data-th="macOS บอกว่าแอป “เสียหาย” หรือ “เปิดไม่ได้” ทำอย่างไร?" data-en="macOS says the app is “damaged” or can’t be opened?">macOS บอกว่าแอป “เสียหาย” หรือ “เปิดไม่ได้” ทำอย่างไร?</summary><p data-th="แอปนี้ไม่ได้ลงทะเบียนกับ Apple ให้ใช้ไฟล์ “Install KhianPad.command” (คลิกขวา › Open) ซึ่งจะแก้ให้เอง หรือเปิด Terminal แล้วพิมพ์: xattr -cr /Applications/KhianPad.app" data-en="The app isn’t registered with Apple. Use “Install KhianPad.command” (right-click › Open), which fixes it, or run in Terminal: xattr -cr /Applications/KhianPad.app">แอปนี้ไม่ได้ลงทะเบียนกับ Apple ให้ใช้ไฟล์ “Install KhianPad.command” (คลิกขวา › Open) ซึ่งจะแก้ให้เอง หรือเปิด Terminal แล้วพิมพ์: xattr -cr /Applications/KhianPad.app</p></details>
+      <details><summary data-th="ไฟล์ของฉันถูกส่งขึ้นอินเทอร์เน็ตไหม?" data-en="Are my files uploaded anywhere?">ไฟล์ของฉันถูกส่งขึ้นอินเทอร์เน็ตไหม?</summary><p data-th="ไม่ ทุกอย่างทำงานในเครื่องของคุณเท่านั้น" data-en="No. Everything runs on your own computer.">ไม่ ทุกอย่างทำงานในเครื่องของคุณเท่านั้น</p></details>
+      <details><summary data-th="เวอร์ชันเว็บต่างจากแอปอย่างไร?" data-en="How is the web version different?">เวอร์ชันเว็บต่างจากแอปอย่างไร?</summary><p data-th="เวอร์ชันเว็บใช้งานได้เกือบครบ แต่การบันทึกทับไฟล์เดิมและเปิดโฟลเดอร์ทำได้เฉพาะ Chrome/Edge ส่วน Safari จะบันทึกเป็นการดาวน์โหลดไฟล์แทน" data-en="The web version does almost everything, but saving over the original file and opening folders need Chrome/Edge; in Safari, saving downloads the file instead.">เวอร์ชันเว็บใช้งานได้เกือบครบ แต่การบันทึกทับไฟล์เดิมและเปิดโฟลเดอร์ทำได้เฉพาะ Chrome/Edge ส่วน Safari จะบันทึกเป็นการดาวน์โหลดไฟล์แทน</p></details>
+    </section>
+  </main>
+
+  <footer class="foot">
+    <span>© KhianPad</span>
+    <a href="../" data-th="เปิดโปรแกรมบนเว็บ" data-en="Open the web editor">เปิดโปรแกรมบนเว็บ</a>
+    <a href="#top" data-th="กลับขึ้นด้านบน" data-en="Back to top">กลับขึ้นด้านบน</a>
+  </footer>
+</body>
+</html>

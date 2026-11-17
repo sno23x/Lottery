@@ -2,6 +2,7 @@
 <html lang="th">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>ໂປຣແກຣມ ໄລ່ເລກ ແລະ ກວດຫວຍ</title>
     <style>
         @font-face {
@@ -48,6 +49,8 @@
 
         .header-row {
             display: flex;
+            flex-wrap: wrap;          /* ມືຖື: ໃຫ້ປຸ່ມຕົກແຖວໄດ້ ບໍ່ດັ່ງນັ້ນຈະລົ້ນອອກນອກຈໍ */
+            gap: 10px;
             justify-content: space-between;
             align-items: center;
             margin-bottom: 20px;
@@ -86,6 +89,11 @@
             flex: 2 1 600px;
             display: flex;
             flex-direction: column;
+        }
+        /* ຈໍແຄບ (tablet/ມືຖື): ແຜງລົງມາຢູ່ເທິງສຸດເຕັມຄວາມກວ້າງ ➔ ຕ້ອງປິດ sticky
+           ບໍ່ດັ່ງນັ້ນ ຕອນເລື່ອນລົງ ແຜງຈະຄ້າງບັງບ່ອນ paste ເລກ */
+        @media (max-width: 1100px) {
+            .left-panel { position: static; top: auto; }
         }
 
         /* ═══════════ Win Box (Lottery Panel) ═══════════ */
@@ -145,6 +153,8 @@
             transition: border-color 0.2s;
         }
         .lotto-title-input:focus { outline: none; border-bottom: 2px solid #f59e0b; }
+        /* ຊື່ຫວຍຕາຍຕົວ — ປ່ຽນບໍ່ໄດ້ (ກັນພິມທັບໂດຍບັງເອີນ ໂດຍສະເພາະໃນມືຖື) */
+        .lotto-title-input[readonly] { cursor: default; user-select: none; pointer-events: none; }
 
         .lotto-input {
             width: 100%;
@@ -264,6 +274,23 @@
         }
         button.calc-btn:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(239,68,68,0.35); }
         button.calc-btn:active { transform: translateY(0); }
+
+        /* ປຸ່ມຄຳນວນ + ລ້າງ ຢູ່ແຖວດຽວກັນ */
+        .calc-row { display: flex; gap: 10px; align-items: stretch; }
+        .calc-row button.calc-btn { width: auto; flex: 1; }
+        button.clear-btn {
+            background: #64748b; color: #fff; border: none; padding: 14px 18px;
+            font-size: 15px; cursor: pointer; border-radius: 12px; font-weight: 700;
+            flex: none; white-space: nowrap; transition: background 0.2s ease;
+        }
+        button.clear-btn:hover { background: #475569; }
+
+        /* ແທັບ ຂຽນເລກ: ຝັງ KhianPad ດ້ວຍ iframe */
+        .notepad-frame {
+            width: 100%; height: calc(100vh - 230px); min-height: 420px;
+            border: 1px solid #cbd5e1; border-radius: 10px; background: #fff; display: block;
+        }
+        body.dark-mode .notepad-frame { border-color: #475569; }
 
         /* ═══════════ Result Box ═══════════ */
         .result-box {
@@ -1375,6 +1402,47 @@
             to   { opacity: 1; transform: translateY(0); }
         }
         .container { animation: coolFade 0.45s ease-out; }
+
+        /* ── ປຸ່ມເປີດ/ປິດເປັນກຸ່ມ (ນາກ 3-9 / ເສືອ 3-9) ── */
+        .group-btn {
+            padding: 7px 12px;
+            font-size: 13px;
+            font-family: inherit;
+            font-weight: 800;
+            border: 2px solid transparent;
+            border-radius: 6px;
+            cursor: pointer;
+            opacity: 0.9;
+            transition: opacity 0.15s, box-shadow 0.15s, transform 0.12s;
+        }
+        .group-btn:hover { opacity: 1; transform: translateY(-1px); }
+        /* ປິດຢູ່ — ສີອ່ອນແຕ່ສົດ ພໍໃຫ້ຮູ້ວ່າກຸ່ມໃດ */
+        .group-nak { background: #ffe0e0; color: #d32f2f; border-color: #ffb3b3; }
+        .group-sua { background: #d9f2ff; color: #0277bd; border-color: #9fdcff; }
+        /* ເປີດຄົບທັງກຸ່ມ ➔ ສີເຂັ້ມສົດ + ເຫຼື້ອມ */
+        .group-btn.group-on { opacity: 1; color: #fff; }
+        .group-nak.group-on {
+            background: linear-gradient(135deg, #ff5252, #e53935);
+            border-color: #c62828;
+            box-shadow: 0 2px 0 0 #c62828, 0 4px 14px rgba(229,57,53,0.45);
+        }
+        .group-sua.group-on {
+            background: linear-gradient(135deg, #29b6f6, #0288d1);
+            border-color: #0277bd;
+            box-shadow: 0 2px 0 0 #0277bd, 0 4px 14px rgba(2,136,209,0.45);
+        }
+        body.dark-mode .group-nak { background: #4a1414; color: #ff8a80; border-color: #7f1d1d; }
+        body.dark-mode .group-sua { background: #0c2f43; color: #81d4fa; border-color: #0b4f6c; }
+        body.dark-mode .group-btn.group-on { color: #fff; }
+        /* ໂໝດມືດ: ຕ້ອງລະບຸຊ້ຳ ບໍ່ດັ່ງນັ້ນສີພື້ນມືດຈະທັບສີເຂັ້ມຂອງສະຖານະເປີດ */
+        body.dark-mode .group-nak.group-on {
+            background: linear-gradient(135deg, #ff5252, #e53935);
+            border-color: #c62828;
+        }
+        body.dark-mode .group-sua.group-on {
+            background: linear-gradient(135deg, #29b6f6, #0288d1);
+            border-color: #0277bd;
+        }
     </style>
 </head>
 <body>
@@ -1409,8 +1477,12 @@
                     <span style="font-size:12px; color:inherit; opacity:0.7;">(ຄລິກເປີດ/ປິດ)</span>
                     <span id="autoFillNote" style="font-size:12px; color:#16a34a; font-weight:bold; margin-left:6px;"></span>
                 </summary>
-                <div style="display:flex;gap:6px;margin-top:10px;align-items:center;">
+                <div style="display:flex;flex-wrap:wrap;gap:6px;margin-top:10px;align-items:center;">
                     <button id="lockResultsBtn" onclick="toggleLockResults()" style="background:#37474f;">🔓 ລັອກຜົນຫວຍ</button>
+                    <button id="groupNakBtn" class="group-btn group-nak" onclick="toggleGroup('nak')"
+                            title="ເປີດສະເພາະ ນາກ 3ມ-9ມ (ປິດອັນອື່ນໝົດ) — ກົດຊ້ຳ = ປິດນາກທັງໝົດ">ນາກ 3-9</button>
+                    <button id="groupSuaBtn" class="group-btn group-sua" onclick="toggleGroup('sua')"
+                            title="ເປີດສະເພາະ ເສືອ 3ມ-9ມ (ປິດອັນອື່ນໝົດ) — ກົດຊ້ຳ = ປິດເສືອທັງໝົດ">ເສືອ 3-9</button>
                     <button onclick="clearAllResults()" style="flex:0 0 auto;padding:7px 10px;font-size:13px;font-family:inherit;background:#c62828;color:#fff;border:none;border-radius:6px;cursor:pointer;" title="ລຶບຜົນຫວຍທັງໝົດ">🗑️</button>
                     <label style="font-size:12px;display:flex;align-items:center;gap:4px;margin-left:auto;cursor:pointer;opacity:0.8;user-select:none;">
                         <input type="checkbox" id="filterEnabledOnly" onchange="filterLottoCards()" style="accent-color:#f59e0b;">
@@ -1434,6 +1506,7 @@
                 <button class="tab-btn active" id="tab-btn-calc" onclick="switchTab('calc')">⚡ ໄລ່ເລກ</button>
                 <button class="tab-btn" id="tab-btn-wa" onclick="switchTab('wa')">📱 ກວດ WhatsApp</button>
                 <button class="tab-btn" id="tab-btn-stats" onclick="switchTab('stats')">📊 ສະຖິຕິ & ໃບ້</button>
+                <button class="tab-btn" id="tab-btn-notepad" onclick="switchTab('notepad')">📝 ຂຽນເລກ</button>
             </div>
 
             <!-- ເລກອັ້ນ: ໃຊ້ຮ່ວມກັນທຸກ tab -->
@@ -1454,7 +1527,10 @@
                     <span style="color:#007bff; font-weight:bold;">🤖 ອັດສະລິຍະ:</span> ພິມເລກຕໍ່ກັນໄດ້ເລີຍ (ເຊັ່ນ <code>79=50 939=30</code>) ແລະ ຮອງຮັບການພິມຄູນ <code>10*10</code> (ບົນ-ລ່າງ)!
                 </p>
                 <textarea id="inputText" placeholder="ວາງຊຸດເລກຢູ່ນີ້... "></textarea>
-                <button class="calc-btn" onclick="processData()">⚡ ຄຳນວນ ແລະ ກວດຫວຍແຕ່ລະຊຸດ</button>
+                <div class="calc-row">
+                    <button class="calc-btn" onclick="processData()">⚡ ຄຳນວນ ແລະ ກວດຫວຍແຕ່ລະຊຸດ</button>
+                    <button class="clear-btn" onclick="clearBetInput()" title="ລ້າງຊ່ອງໄລ່ເລກ ແລະ ຜົນຄຳນວນ">🗑 ລ້າງ</button>
+                </div>
                 <div id="result"></div>
             </div>
 
@@ -1478,6 +1554,7 @@
                     <span id="statsCount" class="stats-meta">0 ງວດ</span>
                     <button onclick="exportHistory()" title="Export JSON">💾</button>
                     <button onclick="document.getElementById('importHistFile').click()" title="Import JSON">📂</button>
+                    <button onclick="resyncHistory()" title="ລ້າງປະຫວັດໃນເຄື່ອງນີ້ ແລ້ວໂຫຼດໃໝ່ຈາກເວັບ">🔄</button>
                     <input type="file" id="importHistFile" accept=".json" style="display:none;" onchange="importHistory(event)">
                 </div>
 
@@ -1530,6 +1607,18 @@
                     <div id="pinnedList"></div>
                 </details>
             </div>
+
+            <!-- Notepad Tab: KhianPad ຝັງດ້ວຍ iframe -->
+            <!-- src ຕັ້ງຕອນກົດແທັບນີ້ເທື່ອທຳອິດເທົ່ານັ້ນ (switchTab) ➔ ຄົນທີ່ບໍ່ໃຊ້ ບໍ່ໂຫຼດ 1.2MB -->
+            <div id="tab-notepad" style="display:none;">
+                <p style="font-size: 14px; margin-top: 0; margin-bottom: 10px; line-height:1.6;">
+                    <span style="color:#1976d2; font-weight:bold;">📝 ຂຽນ/ແກ້ຊຸດເລກ:</span>
+                    ພິມ ຫຼື ວາງເລກຢູ່ນີ້ ແກ້ໄຂໃຫ້ຮຽບຮ້ອຍ ແລ້ວກົດ <b>➡ ສົ່ງໄປໄລ່ເລກ</b>
+                    ➔ ຈະ<b>ຕື່ມທ້າຍ</b>ຊ່ອງໄລ່ເລກ (ບິນເກົ່າບໍ່ຫາຍ)<br>
+                    <span style="color:#555; font-size:13px;">Ctrl+F ຄົ້ນຫາ · Ctrl+H ແທນ · ເປີດໄດ້ຫຼາຍແທັບ · ແທັບທີ່ເປີດໄວ້ຈະຖືກຈຳໄວ້</span>
+                </p>
+                <iframe id="notepadFrame" class="notepad-frame" title="KhianPad"></iframe>
+            </div>
         </div>
 
     </div>
@@ -1577,7 +1666,7 @@
             gridHTML += `
             <div class="lotto-card">
                 <div class="lotto-header">
-                    <input type="text" class="lotto-title-input" value="${lottoNames[i-1]}">
+                    <input type="text" class="lotto-title-input" value="${lottoNames[i-1]}" readonly tabindex="-1" title="ຊື່ຫວຍຖືກຕັ້ງໄວ້ຕາຍຕົວ ປ່ຽນບໍ່ໄດ້">
                     <label class="switch">
                         <input type="checkbox" id="lotto-check-${i}">
                         <span class="slider"></span>
@@ -1605,7 +1694,6 @@
             if (saved.top   !== undefined && topEl)   topEl.value     = saved.top;
             if (saved.bot   !== undefined && botEl)   botEl.value     = saved.bot;
             if (saved.check !== undefined && chkEl)   chkEl.checked   = saved.check;
-            if (saved.title !== undefined && titleEl) titleEl.value   = saved.title;
 
             // Auto-save on any change
             const saveCard = () => {
@@ -1618,8 +1706,7 @@
             };
             topEl?.addEventListener('input', saveCard);
             botEl?.addEventListener('input', saveCard);
-            chkEl?.addEventListener('change', () => { saveCard(); filterLottoCards(); updateHoverPreview(); });
-            titleEl?.addEventListener('input', saveCard);
+            chkEl?.addEventListener('change', () => { saveCard(); filterLottoCards(); updateHoverPreview(); updateGroupBtnState(); });
             topEl?.addEventListener('input', updateHoverPreview);
             botEl?.addEventListener('input', updateHoverPreview);
         }
@@ -1630,6 +1717,7 @@
         const savedFilter = localStorage.getItem('lotto-filter-enabled') === '1';
         const filterCb = document.getElementById('filterEnabledOnly');
         if (filterCb) filterCb.checked = savedFilter;
+        updateGroupBtnState();   // ປຸ່ມກຸ່ມ ນາກ/ເສືອ ໃຫ້ຕົງກັບ switch ທີ່ບັນທຶກໄວ້
         filterLottoCards();
         // Restore manual-buttons toggle (default = hidden)
         const showManual = localStorage.getItem('lotto-show-manual') === '1';
@@ -1702,6 +1790,49 @@
         });
     }
 
+    // ── ປຸ່ມເປີດ/ປິດເປັນກຸ່ມ: ນາກ 3ມ-9ມ ຫຼື ເສືອ 3ມ-9ມ ──
+    //    ກົດ 1 ເທື່ອ = ເປີດສະເພາະກຸ່ມນັ້ນ (ປິດເສືອ/ລາວ/ໄທ ຫຼື ກົງກັນຂ້າມ)
+    //    ກົດຊ້ຳຕອນເປີດຄົບຢູ່ແລ້ວ = ປິດກຸ່ມນັ້ນທັງໝົດ
+    function cardGroup(i) {
+        const t = document.querySelector(`#lottoGrid .lotto-card:nth-child(${i}) .lotto-title-input`)?.value || '';
+        if (t.includes('ນາກ')) return 'nak';
+        if (t.includes('ເສືອ')) return 'sua';
+        return i <= 14 ? (i % 2 ? 'nak' : 'sua') : 'other';   // ຖ້າຜູ້ໃຊ້ປ່ຽນຊື່ ➔ ໃຊ້ລຳດັບເດີມ
+    }
+
+    function groupMembers(group) {
+        const out = [];
+        for (let i = 1; i <= 16; i++) if (cardGroup(i) === group) out.push(i);
+        return out;
+    }
+
+    function setCardCheck(i, on) {
+        const cb = document.getElementById(`lotto-check-${i}`);
+        if (!cb || cb.checked === on) return;
+        cb.checked = on;
+        cb.dispatchEvent(new Event('change'));   // ໃຫ້ລະບົບບັນທຶກ ແລະ ອັບເດດຕາມປົກກະຕິ
+    }
+
+    function toggleGroup(group) {
+        const members = groupMembers(group);
+        if (!members.length) return;
+        const allOn = members.every(i => document.getElementById(`lotto-check-${i}`)?.checked);
+        members.forEach(i => setCardCheck(i, !allOn));
+        if (!allOn) {
+            for (let i = 1; i <= 16; i++) if (!members.includes(i)) setCardCheck(i, false);
+        }
+        updateGroupBtnState();
+    }
+
+    function updateGroupBtnState() {
+        [['nak', 'groupNakBtn'], ['sua', 'groupSuaBtn']].forEach(([g, id]) => {
+            const btn = document.getElementById(id);
+            if (!btn) return;
+            const m = groupMembers(g);
+            btn.classList.toggle('group-on', m.length > 0 && m.every(i => document.getElementById(`lotto-check-${i}`)?.checked));
+        });
+    }
+
     // ── Hover preview: show enabled results when panel is closed ──
     function updateHoverPreview() {
         const el = document.getElementById('hoverPreview');
@@ -1749,11 +1880,50 @@
         document.getElementById('tab-calc').style.display  = tab === 'calc'  ? '' : 'none';
         document.getElementById('tab-wa').style.display    = tab === 'wa'    ? '' : 'none';
         document.getElementById('tab-stats').style.display = tab === 'stats' ? '' : 'none';
+        document.getElementById('tab-notepad').style.display = tab === 'notepad' ? '' : 'none';
         document.getElementById('tab-btn-calc').classList.toggle('active',  tab === 'calc');
         document.getElementById('tab-btn-wa').classList.toggle('active',    tab === 'wa');
         document.getElementById('tab-btn-stats').classList.toggle('active', tab === 'stats');
+        document.getElementById('tab-btn-notepad').classList.toggle('active', tab === 'notepad');
         if (tab === 'stats') initStatsTab();
+        if (tab === 'notepad') {
+            // ໂຫຼດ KhianPad ເທື່ອທຳອິດທີ່ກົດແທັບນີ້ເທົ່ານັ້ນ
+            const f = document.getElementById('notepadFrame');
+            if (!f.src) f.src = 'notepad/index.html?host=lottery';
+        }
     }
+
+    // ==================== ປຸ່ມລ້າງຊ່ອງໄລ່ເລກ ====================
+    function clearBetInput() {
+        const box = document.getElementById('inputText');
+        if (box.value.trim() && !confirm('ລ້າງບິນທັງໝົດໃນຊ່ອງໄລ່ເລກ?\n\nເອົາກັບຄືນບໍ່ໄດ້.')) return;
+        box.value = '';
+        document.getElementById('result').innerHTML = '';
+        box.focus();
+    }
+
+    // ==================== ຮັບຂໍ້ຄວາມຈາກ KhianPad (ແທັບ ຂຽນເລກ) ====================
+    // ຕື່ມທ້າຍ ບໍ່ທັບ: ໜ້ານີ້ແບ່ງບິນດ້ວຍແຖວເປົ່າ (processData ໃຊ້ split(/\n\s*\n/))
+    // ➔ ຂັ້ນດ້ວຍ \n\n ແລ້ວຂໍ້ຄວາມໃໝ່ກາຍເປັນບິນໃໝ່ແຍກຕ່າງຫາກ
+    window.addEventListener('message', (e) => {
+        // ຮັບສະເພາະຈາກ iframe notepad ຂອງເຮົາເອງ ບໍ່ຮັບຈາກບ່ອນອື່ນ
+        const frame = document.getElementById('notepadFrame');
+        if (e.origin !== location.origin) return;
+        if (!frame || e.source !== frame.contentWindow) return;
+        if (!e.data || e.data.type !== 'khianpad:send') return;
+
+        const incoming = String(e.data.text || '').trim();
+        if (!incoming) return;
+
+        const box = document.getElementById('inputText');
+        const existing = box.value.replace(/\s+$/, '');
+        box.value = existing ? existing + '\n\n' + incoming : incoming;
+
+        switchTab('calc');
+        box.focus();
+        box.selectionStart = box.selectionEnd = box.value.length;
+        box.scrollTop = box.scrollHeight;
+    });
 
     // ==================== Viet*.vip paste helper (ເສືອ draws, CAPTCHA-protected) ====================
     // User: open result.php → Ctrl+A Ctrl+C → click 📋 Paste in app → auto-fill
@@ -2059,16 +2229,16 @@
     // ໄທ/ລາວ: single wide window, check BOTH top & bottom (bet suffix decides which)
     // indices = lottery card i-numbers (1..16)
     // 3ມ:9,10 | 4ມ:1,2 | 5ມ:3,4 | 6ມ:5,6 | 7ມ:7,8 | 8ມ:11,12 | 9ມ:13,14 | ໄທ:15 | ລາວ:16
-    // ໝາຍເຫດ: ນາທີ :16 ຂຶ້ນໄປ = ບົນ window (ນາທີ 0-15 = ລ່າງ window)
-    // botEnd / topStart ທຸກ draw ຢູ່ທີ່ :16 ຂອງຊົ່ວໂມງ draw
+    // ໝາຍເຫດ: ນາທີ :14 ຂຶ້ນໄປ = ບົນ window (ນາທີ 0-13 = ລ່າງ window)
+    // botEnd / topStart ທຸກ draw ຢູ່ທີ່ :14 ຂອງຊົ່ວໂມງ draw
     const nakTigerSlots = [
-        { draw:"3ມ", indices:[9,10],  botStart:"12:30", botEnd:"15:16", topStart:"15:16", topEnd:"15:30" },
-        { draw:"4ມ", indices:[1,2],   botStart:"15:30", botEnd:"16:16", topStart:"16:16", topEnd:"16:30" },
-        { draw:"5ມ", indices:[3,4],   botStart:"16:30", botEnd:"17:16", topStart:"17:16", topEnd:"17:30" },
-        { draw:"6ມ", indices:[5,6],   botStart:"17:30", botEnd:"18:16", topStart:"18:16", topEnd:"18:30" },
-        { draw:"7ມ", indices:[7,8],   botStart:"18:30", botEnd:"19:16", topStart:"19:16", topEnd:"19:30" },
-        { draw:"8ມ", indices:[11,12], botStart:"19:30", botEnd:"20:16", topStart:"20:16", topEnd:"20:30" },
-        { draw:"9ມ", indices:[13,14], botStart:"20:30", botEnd:"21:16", topStart:"21:16", topEnd:"21:30" },
+        { draw:"3ມ", indices:[9,10],  botStart:"12:30", botEnd:"15:14", topStart:"15:14", topEnd:"15:30" },
+        { draw:"4ມ", indices:[1,2],   botStart:"15:30", botEnd:"16:14", topStart:"16:14", topEnd:"16:30" },
+        { draw:"5ມ", indices:[3,4],   botStart:"16:30", botEnd:"17:14", topStart:"17:14", topEnd:"17:30" },
+        { draw:"6ມ", indices:[5,6],   botStart:"17:30", botEnd:"18:14", topStart:"18:14", topEnd:"18:30" },
+        { draw:"7ມ", indices:[7,8],   botStart:"18:30", botEnd:"19:14", topStart:"19:14", topEnd:"19:30" },
+        { draw:"8ມ", indices:[11,12], botStart:"19:30", botEnd:"20:14", topStart:"20:14", topEnd:"20:30" },
+        { draw:"9ມ", indices:[13,14], botStart:"20:30", botEnd:"21:14", topStart:"21:14", topEnd:"21:30" },
     ];
     // ໄທ/ລາວ: one window covering full betting period; both top & bottom apply.
     // NOTE: 3-digit numbers on ໄທ/ລາວ have NO ລ່າງ — calculated ບົນ only (rule enforced in processBlock)
@@ -2198,6 +2368,15 @@
 
     // Pre-process: insert newlines to split inline multiple bets (e.g. "79=50 939=30")
     function preprocessBetText(text) {
+        // ⓪0 ຕົວ "ຄູນ" ທີ່ໜ້າຕາຄືກັນແຕ່ເປັນຄົນລະຕົວ (ມາຈາກແປ້ນພິມມືຖື ຫຼື ກັອບມາ)
+        //     ➔ ປ່ຽນເປັນ * ທັງໝົດ ບໍ່ດັ່ງນັ້ນ 50X50 ຈະຖືກນັບແຕ່ 50 (ຍອດເສຍເຄິ່ງໜຶ່ງ)
+        //     ລັດເຊຍ Х х | ກຣີກ Χ χ | ເຕັມຄວາມກວ້າງ Ｘ ｘ ＊ | ✕ ✖ ✗ ✘ ╳ ⨯ ⨉ ∗
+        text = text.replace(/[\u0425\u0445\u03A7\u03C7\uFF38\uFF58\uFF0A\u2715\u2716\u2717\u2718\u2573\u2A2F\u2A09\u2217]/g, '*');
+
+        // ⓪a ຊື່ຫວຍ (ລາວ/ໄທ/ນາກ/ເສືອ/ຫວຍ) ບໍ່ແມ່ນສັນຍານ ບົນ/ລ່າງ ➔ ເອົາອອກກ່ອນ
+        //     ບໍ່ດັ່ງນັ້ນຕົວ 'ລ' ໃນຄຳວ່າ 'ລາວ' ຖືກອ່ານເປັນ 'ລ່າງ' (456=50ລາວ ➔ ເງິນເປັນ 0)
+        text = text.replace(/ຫວຍ|ລາວ|ນາກ|ເສືອ|ໄທ|หวย|ลาว|นาค|เสือ|ไทย/g, ' ');
+
         // ⓪ Normalize Lao spelling variants of ບົນ / ລ່າງ (missing or mis-ordered combining marks)
         //    ລາ່ງ, ລາງ່, ລາງ → ລ່າງ   |   ບນົ, ບນ → ບົນ
         //    ລ່າງ must run first so the ບນ rule can see a canonical ລ່າງ after it.
@@ -2250,7 +2429,7 @@
     // winTopAny          : (ບົນ window only) true = treat ລ/ລ່າງ suffix bets as ບ (check against top result)
     //                      In ລ່າງ window this is false; ບລ bets still win on BOTH because topWins is populated.
     // threeDigitNoBottom : ໄທ/ລາວ rule — 3-digit numbers have NO ລ່າງ (money calc ignores botP for 3-digit)
-    // forceTopOnly       : ນາກ/ເສືອ top window (ນາທີ >= 16) — ALL numbers (2+3 digit) = ບົນ only, ບລ → ບ
+    // forceTopOnly       : ນາກ/ເສືອ top window (ນາທີ >= 14) — ALL numbers (2+3 digit) = ບົນ only, ບລ → ບ
     function processBlock(block, topWinningNumbers, botWinningNumbers, blockIndex, blockLabel, winTopAny, threeDigitNoBottom, forceTopOnly, windowDefaultType) {
         const displayLabel = blockLabel !== undefined ? blockLabel : `ຊຸດທີ ${blockIndex}`;
 
@@ -2418,11 +2597,20 @@
                 let isB   = !isBL && !isL && /(ບົນ|บน|ບ|บ)/i.test(suffixPart);
                 let isMul = /[\*\+xX×]/.test(suffixPart);
                 if (!isBL && !isL && !isB && !isMul) {
-                    if (blockLevelType === 'both')   suffixPart += ' (ບົນ-ລ່າງ)';
-                    else if (blockLevelType === 'bottom') suffixPart += ' (ລ່າງ)';
-                    else if (blockLevelType === 'top')    suffixPart += ' (ບົນ)';
+                    // ຕິດປ້າຍທິດທາງໃສ່ທຸກແຖວ ລວມທັງແຖວທີ່ຍັງບໍ່ທັນມີ section
+                    // ເຫດຜົນ: ຍອດເງິນຄິດຈາກ key ນີ້ອີກຮອບ ຫຼັງ loop ນີ້ຈົບແລ້ວ ເຊິ່ງຕອນນັ້ນ
+                    // blockLevelType ຍັງຄ້າງຄ່າຂອງແຖວສຸດທ້າຍ ➔ ແຖວທີ່ບໍ່ມີປ້າຍຈະຖືກຄິດຜິດທິດ
+                    // (ເລກ 3 ໂຕ ຖືກຄິດເປັນ ລ່າງ ທັງທີ່ 3 ໂຕ ບໍ່ມີລ່າງ ຈຶ່ງກາຍເປັນ 0)
+                    const lineType = blockLevelType || windowDefaultType || 'top';
+                    if (lineType === 'both')        suffixPart += ' (ບົນ-ລ່າງ)';
+                    else if (lineType === 'bottom') suffixPart += ' (ລ່າງ)';
+                    else                            suffixPart += ' (ບົນ)';
                 }
             }
+            // \u0EC4\u0E97/\u0EA5\u0EB2\u0EA7: 3\u0EC2\u0E95 \u0E9A\u0ECD\u0EC8\u0EA1\u0EB5 \u0EA5\u0EC8\u0EB2\u0E87 \u2192 \u0EAB\u0EBC\u0EB1\u0E81 \u0E94\u0EB6\u0E87\u0EC0\u0EA5\u0E81 2\u0EC2\u0E95 \u0EC4\u0E94\u0EC9\u0EC1\u0E95\u0EC8\u0E88\u0EB2\u0E81\u0EC1\u0E96\u0EA7 \u0E9A\u0EBB\u0E99
+            // \u0EC1\u0E96\u0EA7 \u0EA5\u0EC8\u0EB2\u0E87 \u0EA5\u0EC9\u0EA7\u0E99\u0EC6 (topP=0) \u0E9A\u0ECD\u0EC8\u0EC0\u0E82\u0EBB\u0EC9\u0EB2 pool  |  \u0E99\u0EB2\u0E81/\u0EC0\u0EAA\u0EB7\u0EAD (threeDigitNoBottom=false) \u0E94\u0EB6\u0E87\u0EC4\u0E94\u0EC9\u0EDD\u0EBB\u0E94
+            const linePrice = parsePrice(suffixPart);
+            const bottomOnlyLine = threeDigitNoBottom && linePrice.topP === 0 && linePrice.botP > 0;
             let normalizedPart = numberPart.replace(/[\u200B-\u200D\uFEFF]/g, '').trim();
             normalizedPart = expandKeywords(normalizedPart);
             const hlakMatch = normalizedPart.match(/^(ຫລັຫ|ລັຫ|ຫຼັກ|ຫັຼກ|ຫັລກ|ລກັ|ຫລັກ|ລັກ|ลัก|หลัก|ຫັກ|ຮັກ|\u0EDE\u0EB1\u0EA1|\u0EDE\u0EA1)\s*(.*)/i);
@@ -2449,7 +2637,7 @@
                     }
                 };
                 // Helper: route count into correct money bucket
-                // suffixCountsForced = ນາກ/ເສືອ ບົນ window (ນາທີ>=16): ALL digits → top-only, ລ/ລ່າງ suffix ໃຊ້ botP ເປັນ topP
+                // suffixCountsForced = ນາກ/ເສືອ ບົນ window (ນາທີ>=14): ALL digits → top-only, ລ/ລ່າງ suffix ໃຊ້ botP ເປັນ topP
                 // suffixCounts3d     = ໄທ/ລາວ: only 3-digit → top-only money; 2-digit keeps both sides
                 // suffixCounts       = ປົກກະຕິ: ບົນ+ລ່າງ
                 const addCount = (n) => {
@@ -2476,7 +2664,7 @@
                     totalNumbers++;
                     digitCounts[cleanNum.length] = (digitCounts[cleanNum.length] || 0) + 1;
                     addCount(cleanNum);
-                    if (cleanNum.length === 2) {
+                    if (cleanNum.length === 2 && !bottomOnlyLine) {
                         // ຖ້າ pool ຖືກໃຊ້ໂດຍ ຫຼັກ ກ່ອນໜ້າ — ເລີ່ມ pool ໃໝ່
                         if (poolConsumed) { allTwoDigitNumbers = []; poolConsumed = false; }
                         allTwoDigitNumbers.push(cleanNum);
@@ -2740,6 +2928,9 @@
             if (document.getElementById(`lotto-check-${i}`)?.checked) { anyNakTigerOn = true; break; }
         }
         const threeDigitNoBottom = isLaoThaiOn && !anyNakTigerOn;
+        // ບໍ່ໄດ້ເປີດສະວິດປະເພດຫວຍເລີຍ → ຕົກໄປໂໝດ ນາກ/ເສືອ ໂດຍປະລິຍາຍ (ຫຼັກ ດຶງເລກຈາກແຖວ ລ່າງ ນຳ)
+        // ໜ້ານີ້ໃຊ້ໄລ່ຍອດເງິນເສີຍໆ ບໍ່ບັງຄັບໃຫ້ເລືອກ — ແຈ້ງເຕືອນຢ່າງດຽວ
+        const noLottoOn = !isLaoThaiOn && !anyNakTigerOn;
         const blocks = text.split(/\n\s*\n/);
         let summaryLinesHTML = '', detailedHTML = '', validBlockCount = 0;
         blocks.forEach(block => {
@@ -2751,6 +2942,7 @@
         });
         document.getElementById('result').innerHTML = `
             <div class="result-box" style="margin-top:20px;">
+                ${noLottoOn ? `<div class="hit-badge" style="text-align:left;margin:0 0 16px;">⚠️ <b>ຍັງບໍ່ໄດ້ເປີດສະວິດປະເພດຫວຍ</b><br>ຕອນນີ້ໄລ່ 3 ໂຕ ແບບ <b>ນາກ/ເສືອ</b> — <b>ຫຼັກ</b> ຈະດຶງເລກ 2 ໂຕ ຈາກແຖວ <b>ລ່າງ</b> ມານຳ<br>ຖ້າເປັນບິນ <b>ລາວ / ໄທ</b> (3 ໂຕ ບໍ່ມີ ລ່າງ) ໃຫ້ເປີດສະວິດ <b>ລາວ</b> ຫຼື <b>ໄທ</b> ໃນແຜງຜົນຫວຍກ່ອນ</div>` : ''}
                 <h3 class="summary-title" style="color:#2e7d32;">📑 ສະຫຼຸບຍອດແຕ່ລະຊຸດ (ບໍ່ລວມກັນ)</h3>
                 <div class="summary-list-container">${summaryLinesHTML}</div>
                 <h3 class="summary-title" style="margin-top:30px;border:none;font-size:16px;">🔎 ລາຍລະອຽດເພີ່ມເຕີມແຕ່ລະຊຸດ</h3>
@@ -3188,31 +3380,58 @@
 
     // ດຶງປະຫວັດຫວຍຈາກ lotto-history.json (folder ດຽວກັບໜ້າເວັບ) ອັດຕະໂນມັດຕອນເປີດ
     // ເພີ່ມສະເພາະວັນທີທີ່ຍັງບໍ່ມີ ➔ ຂໍ້ມູນທີ່ປ້ອນເອງໃນເຄື່ອງຈະບໍ່ຖືກທັບ
-    async function syncHistoryFromWeb() {
+    async function syncHistoryFromWeb(opts = {}) {
+        let added = 0;
         try {
             const resp = await fetch('lotto-history.json', { cache: 'no-cache' });
             if (!resp.ok) return;
             const data = await resp.json();
             if (!data || !data.history) return;
             const local = loadHist();
-            let added = 0;
+            let fixed = 0;
             for (const [draw, list] of Object.entries(data.history)) {
                 if (!Array.isArray(list)) continue;
                 if (!local[draw]) local[draw] = [];
-                const have = new Set(local[draw].map(e => e.date));
+                const byDate = new Map(local[draw].map((e, i) => [e && e.date, i]));
                 list.forEach(e => {
-                    if (e && e.date && !have.has(e.date)) { local[draw].push(e); have.add(e.date); added++; }
+                    if (!e || !e.date) return;
+                    const i = byDate.get(e.date);
+                    if (i === undefined) {
+                        byDate.set(e.date, local[draw].push(e) - 1);
+                        added++;
+                    } else {
+                        // ວັນທີມີຢູ່ແລ້ວ ແຕ່ເລກຕ່າງ ➔ ເອົາຂອງເວັບເປັນຫຼັກ
+                        // (ເມື່ອກ່ອນຂ້າມ ➔ ຄ່າຜິດຈະຄ້າງໃນເຄື່ອງລູກຄ້າຕະຫຼອດໄປ)
+                        const c = local[draw][i];
+                        if (c.top3 !== e.top3 || c.bot3 !== e.bot3 ||
+                            c.top2 !== e.top2 || c.bot2 !== e.bot2) {
+                            local[draw][i] = e;
+                            fixed++;
+                        }
+                    }
                 });
                 local[draw].sort((a, b) => b.date.localeCompare(a.date));
             }
+            added += fixed;
             if (added) {
                 saveHist(local);
                 if (document.getElementById('tab-stats')?.style.display !== 'none') renderStats();
-                console.log(`[ປະຫວັດຫວຍ] ເພີ່ມ ${added} ງວດ ຈາກເວັບ`);
+                console.log(`[ປະຫວັດຫວຍ] ອັບເດດ ${added} ງວດ ຈາກເວັບ (ແກ້ຄ່າເກົ່າ ${fixed})`);
             }
         } catch (_) { /* ເປີດແບບ file:// ຫຼື ບໍ່ມີໄຟລ໌ ➔ ຂ້າມ ບໍ່ຕ້ອງແຈ້ງເຕືອນ */ }
-        finally { fillPanelFromHistory(); }   // ຕື່ມແຜງທຸກກໍລະນີ (ໃຊ້ຂໍ້ມູນທີ່ມີໃນເຄື່ອງ)
+        finally {
+            // ຮອບດຶງເບື້ອງຫຼັງ: ຕື່ມແຜງສະເພາະເມື່ອມີງວດໃໝ່ແທ້ ➔ ບໍ່ທັບເລກທີ່ຜູ້ໃຊ້ກຳລັງພິມ
+            if (!opts.onlyIfNew || added) fillPanelFromHistory();
+        }
     }
+
+    // ດຶງຊ້ຳເບື້ອງຫຼັງ ➔ ເລກໃໝ່ປະກົດເອງ ໂດຍບໍ່ຕ້ອງ refresh ໜ້າເວັບ
+    //   ທຸກ 3 ນາທີ (ຂ້າມເມື່ອແຖບຖືກເຊື່ອງ) + ທຸກຄັ້ງທີ່ກັບມາເບິ່ງແຖບນີ້
+    //   ໃຊ້ cache:'no-cache' ຢູ່ແລ້ວ ➔ ຖ້າໄຟລ໌ບໍ່ປ່ຽນ ຈະບໍ່ໂຫລດຂໍ້ມູນຊ້ຳ (304)
+    setInterval(() => { if (!document.hidden) syncHistoryFromWeb({ onlyIfNew: true }); }, 180000);
+    document.addEventListener('visibilitychange', () => {
+        if (!document.hidden) syncHistoryFromWeb({ onlyIfNew: true });
+    });
 
     // ຕື່ມເລກງວດລ່າສຸດ ຈາກປະຫວັດ ໃສ່ແຜງຄວບຄຸມຜົນຫວຍ ອັດຕະໂນມັດ
     // ─ ຫາວັນທີໃໝ່ສຸດທີ່ມີ (D) ແລ້ວໃຊ້ເລກຂອງວັນນັ້ນ
@@ -3456,6 +3675,28 @@
         document.getElementById('bulkImport').value = '';
         alert(`ນຳເຂົ້າສຳເລັດ ${added} ງວດ ສຳລັບ ${draw}` + (skipped ? ` (ຂ້າມ ${skipped} ແຖວ ບໍ່ຮູ້ຮູບແບບວັນທີ)` : ''));
         renderStats();
+    }
+
+    // ເອົາປະຫວັດຈາກເວັບມາທັບຂອງໃນເຄື່ອງທັງໝົດ
+    // ຕ້ອງມີ ເພາະ syncHistoryFromWeb ແກ້ຄ່າທີ່ຕ່າງໄດ້ ແຕ່ລຶບງວດທີ່ຫາຍຈາກເວັບບໍ່ໄດ້
+    // ➔ ຖ້າເຄີຍ deploy ເລກຜິດຂຶ້ນໄປ ມັນຈະຄ້າງຢູ່ເຄື່ອງລູກຄ້າຕະຫຼອດ
+    async function resyncHistory() {
+        if (!confirm('ລ້າງປະຫວັດໃນເຄື່ອງນີ້ ແລ້ວໂຫຼດໃໝ່ຈາກເວັບ?\n\nເລກທີ່ປ້ອນເອງໃນເຄື່ອງ ແລະ ຍັງບໍ່ມີຢູ່ເວັບ ຈະຫາຍໄປ.')) return;
+        let data;
+        try {
+            const resp = await fetch('lotto-history.json', { cache: 'no-cache' });
+            if (!resp.ok) throw new Error('HTTP ' + resp.status);
+            data = await resp.json();
+            if (!data || !data.history) throw new Error('ຮູບແບບໄຟລ໌ບໍ່ຖືກຕ້ອງ');
+        } catch (e) {
+            // ລຶບກ່ອນແລ້ວຄ່ອຍໂຫຼດ = ສ່ຽງເສຍຂໍ້ມູນຖ້າເນັດຂາດ ➔ ໂຫຼດໃຫ້ໄດ້ກ່ອນຈຶ່ງທັບ
+            alert('ໂຫຼດຈາກເວັບບໍ່ໄດ້ ➔ ບໍ່ໄດ້ລຶບຫຍັງເລີຍ\n\n' + e.message);
+            return;
+        }
+        saveHist(data.history);
+        fillPanelFromHistory();
+        renderStats();
+        alert('ໂຫຼດປະຫວັດໃໝ່ຈາກເວັບແລ້ວ');
     }
 
     function exportHistory() {
