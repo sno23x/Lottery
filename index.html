@@ -1529,7 +1529,7 @@
                 <textarea id="inputText" placeholder="ວາງຊຸດເລກຢູ່ນີ້... "></textarea>
                 <div class="calc-row">
                     <button class="calc-btn" onclick="processData()">⚡ ຄຳນວນ ແລະ ກວດຫວຍແຕ່ລະຊຸດ</button>
-                    <button class="clear-btn" onclick="clearBetInput()" title="ລ້າງຊ່ອງໄລ່ເລກ ແລະ ຜົນຄຳນວນ">🗑 ລ້າງ</button>
+                    <button class="clear-btn" onclick="clearBetInput('calc')" title="ລ້າງຊ່ອງໄລ່ເລກ ແລະ ຜົນຄຳນວນ">🗑 ລ້າງ</button>
                 </div>
                 <div id="result"></div>
             </div>
@@ -1542,7 +1542,10 @@
                     <span style="color:#555; font-size:13px;">ຕົວຢ່າງ: <code>[19:38, 4/4/2026] +856 20 55 123 456: 01.41.81=5ບລ8ມ</code></span>
                 </p>
                 <textarea id="waInputText" style="min-height:220px;" placeholder="[19:38, 4/4/2026] +856 20 95 577 239: 01.41.81=5ບລ8ມ&#10;[19:55, 4/4/2026] +856 20 95 577 239: 06-46-86=5ລ່າງ&#10;[19:58, 4/4/2026] +856 20 95 577 239: 16-56-96=10&#10;216-256-296=5 ລາງ 8"></textarea>
-                <button class="calc-btn" onclick="processWhatsApp()">📱 ກວດ WhatsApp ອັດຕະໂນມັດ</button>
+                <div class="calc-row">
+                    <button class="calc-btn" onclick="processWhatsApp()">📱 ກວດ WhatsApp ອັດຕະໂນມັດ</button>
+                    <button class="clear-btn" onclick="clearBetInput('wa')" title="ລ້າງຊ່ອງ WhatsApp ແລະ ຜົນກວດ">🗑 ລ້າງ</button>
+                </div>
                 <div id="wa-result"></div>
             </div>
 
@@ -1893,12 +1896,19 @@
         }
     }
 
-    // ==================== ປຸ່ມລ້າງຊ່ອງໄລ່ເລກ ====================
-    function clearBetInput() {
-        const box = document.getElementById('inputText');
-        if (box.value.trim() && !confirm('ລ້າງບິນທັງໝົດໃນຊ່ອງໄລ່ເລກ?\n\nເອົາກັບຄືນບໍ່ໄດ້.')) return;
+    // ==================== ປຸ່ມລ້າງ (ໃຊ້ຮ່ວມກັນສອງແທັບ) ====================
+    //   calc = ຊ່ອງໄລ່ເລກ | wa = ຊ່ອງກວດ WhatsApp
+    const INPUT_TARGETS = {
+        calc: { box: 'inputText',   result: 'result',    name: 'ຊ່ອງໄລ່ເລກ' },
+        wa:   { box: 'waInputText', result: 'wa-result', name: 'ຊ່ອງກວດ WhatsApp' },
+    };
+
+    function clearBetInput(which) {
+        const t = INPUT_TARGETS[which] || INPUT_TARGETS.calc;
+        const box = document.getElementById(t.box);
+        if (box.value.trim() && !confirm(`ລ້າງບິນທັງໝົດໃນ${t.name}?\n\nເອົາກັບຄືນບໍ່ໄດ້.`)) return;
         box.value = '';
-        document.getElementById('result').innerHTML = '';
+        document.getElementById(t.result).innerHTML = '';
         box.focus();
     }
 
@@ -1915,11 +1925,13 @@
         const incoming = String(e.data.text || '').trim();
         if (!incoming) return;
 
-        const box = document.getElementById('inputText');
+        // ປາຍທາງມາຈາກປຸ່ມທີ່ກົດໃນ KhianPad — ບໍ່ຮູ້ຈັກ ກໍ່ຕົກໄປຊ່ອງໄລ່ເລກ
+        const which = INPUT_TARGETS[e.data.target] ? e.data.target : 'calc';
+        const box = document.getElementById(INPUT_TARGETS[which].box);
         const existing = box.value.replace(/\s+$/, '');
         box.value = existing ? existing + '\n\n' + incoming : incoming;
 
-        switchTab('calc');
+        switchTab(which);
         box.focus();
         box.selectionStart = box.selectionEnd = box.value.length;
         box.scrollTop = box.scrollHeight;
@@ -2495,7 +2507,7 @@
             const splitIndex = Math.max(lastEq, lastCol);
             if (splitIndex !== -1) {
                 numberPart = working.substring(0, splitIndex).trim();
-                suffixPart = working.substring(splitIndex + 1).trim();
+                suffixPart = normalizeWordAmount(working.substring(splitIndex + 1).trim());
             }
             parsedLines.push({ numberPart, suffixPart, originalSuffix: suffixPart, sectionType: leadingType || currentSectionType, leadingType });
         });
@@ -2800,6 +2812,40 @@
             </details>`;
 
         return { summaryItemHTML, detailHTML, totalKip: blockGrandTotalKip, totalBaht: blockGrandTotalBaht, hasHit };
+    }
+
+    // ແປງຄຳບອກຈຳນວນ ລາວ/ໄທ ໃຫ້ເປັນຕົວເລກ  ເຊັ່ນ  1ລ້ານ ➔ 1000   1ລ້ານ5ແສນ ➔ 1500
+    //
+    // ໜ່ວຍນັບຂອງລະບົບນີ້ແມ່ນ "ພັນກີບ" (ຂຽນ =25 ໝາຍເຖິງ 25,000 ກີບ)
+    // ➔ ພັນ=1  ໝື່ນ=10  ແສນ=100  ລ້ານ=1000  ຮ້ອຍ=0.1  ສິບ=0.01
+    //
+    // ຕ້ອງແປງກ່ອນກວດ ບົນ/ລ່າງ ແລະ ກ່ອນຄິດລາຄາ ເພາະຕົວ ລ ໃນຄຳວ່າ ລ້ານ/ล້าน
+    // ກົງກັບລະຫັດ ລ່າງ ➔ ຖ້າບໍ່ແປງກ່ອນ ແຖວ "ບົນ 21=1ລ້ານ" ຈະຖືກຄິດເປັນ ລ່າງ
+     // ແປງຄຳບອກຈຳນວນ ລາວ/ໄທ ໃຫ້ເປັນຕົວເລກ   ເຊັ່ນ  1ລ້ານ ➔ 1000   1ລ້ານ5ແສນ ➔ 1500
+    //
+    // ໜ່ວຍນັບຂອງລະບົບນີ້ແມ່ນ "ພັນກີບ" (ຂຽນ =25 ໝາຍເຖິງ 25,000 ກີບ)
+    // ➔ ສິບ=0.01  ຮ້ອຍ=0.1  ພັນ=1  ໝື່ນ=10  ແສນ=100  ລ້ານ=1000
+    //
+    // ຕ້ອງແປງກ່ອນກວດ ບົນ/ລ່າງ ເພາະຕົວ ລ ໃນຄຳວ່າ ລ້ານ (ແລະ ล ໃນ ล้าน) ກົງກັບລະຫັດ ລ່າງ
+    // ➔ ຖ້າບໍ່ແປງກ່ອນ ແຖວ "ບົນ 21=1ລ້ານ" ຈະຖືກຄິດ ແລະ ກວດຖືກ ເປັນ ລ່າງ
+    const WORD_SCALE = {
+        'ລ້ານ': 1000, 'ລານ': 1000, 'ล้าน': 1000, 'ลาน': 1000,
+        'ແສນ': 100,   'แสน': 100,
+        'ໝື່ນ': 10,   'ຫມື່ນ': 10,  'หมื่น': 10,
+        'ພັນ': 1,     'พัน': 1,
+        'ຮ້ອຍ': 0.1,  'ຮອຍ': 0.1,   'ร้อย': 0.1, 'รอย': 0.1,
+        'ສິບ': 0.01,  'สิบ': 0.01,
+    };
+    const WORD_TERM_RE = /(\d+(?:\.\d+)?)\s*(ລ້ານ|ລານ|ล้าน|ลาน|ແສນ|แสน|ໝື່ນ|ຫມື່ນ|หมื่น|ພັນ|พัน|ຮ້ອຍ|ຮອຍ|ร้อย|รอย|ສິບ|สิบ)/g;
+    const WORD_RUN_RE  = /(?:\d+(?:\.\d+)?\s*(?:ລ້ານ|ລານ|ล้าน|ลาน|ແສນ|แสน|ໝື່ນ|ຫມື່ນ|หมื่น|ພັນ|พัน|ຮ້ອຍ|ຮອຍ|ร้อย|รอย|ສິບ|สิบ)\s*)+/g;
+
+    function normalizeWordAmount(text) {
+        // ແທນທັງຊຸດເທື່ອດຽວ ຈຶ່ງບວກແບບປະສົມໄດ້: "1ລ້ານ5ແສນ" ➔ 1000+500 ➔ 1500
+        return text.replace(WORD_RUN_RE, run => {
+            let total = 0;
+            run.replace(WORD_TERM_RE, (_, n, unit) => { total += parseFloat(n) * WORD_SCALE[unit]; return ''; });
+            return String(Math.round(total * 100) / 100);   // ກັນເສດທົດນິຍົມລອຍ (0.1*3)
+        });
     }
 
     function getBasePrice(suffix) {
