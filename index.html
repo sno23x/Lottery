@@ -2453,7 +2453,6 @@
         let blockHits = {};
         let isBlockBaht = false;
         let blockLevelType = null;
-        let skippedLines = [];   // ແຖວທີ່ຂຽນຜິດ ➔ ຂ້າມ ບໍ່ຄິດເງິນ ແລະ ເຕືອນ
 
         lines.forEach(line => {
             if (/(฿|b|k|₭|บาด|บาท|ບາດ)/i.test(line)) isBlockBaht = true;
@@ -2510,18 +2509,7 @@
                 numberPart = working.substring(0, splitIndex).trim();
                 suffixPart = normalizeWordAmount(working.substring(splitIndex + 1).trim());
             }
-            // ແຖວທີ່ບໍ່ມີ = ຫຼື : ຈະ "ສືບ" ລາຄາມາຈາກແຖວອື່ນ (ໄວ້ຮັບບິນແບບ 14=10 / 54 / 94)
-            // ➔ ແຖວທີ່ຂຽນຜິດຈຶ່ງຖືກຄິດເງິນແບບງຽບໆ ໂດຍບໍ່ມີໃຜຮູ້
-            // ຕົວຢ່າງ "11.5": ຈຸດເປັນຕົວແຍກເລກ (ຄື 14.54.94) ➔ ແຕກເປັນ 11 ກັບ 5
-            //                 ➔ 5 ເປັນເລກ 1 ໂຕ ຖືກຖິ້ມ ເຫຼືອ 11 ຮັບລາຄາ 5 ຈາກແຖວເທິງ
-            //                 ➔ ບິນ 140 ກາຍເປັນ 145 (11.5 ບໍ່ແມ່ນ 11=5)
-            // ກົດ: ບໍ່ມີລາຄາຂອງຕົນເອງ + ມີເລກ 1 ໂຕ ປົນຢູ່ ➔ ຖືວ່າຂຽນຜິດ ຂ້າມທັງແຖວ
-            // ກວດສະເພາະແຖວທີ່ມີແຕ່ເລກກັບຕົວແຍກ ➔ ປ້າຍເວລາ "4ໂມງລ່າງ" ແລະ "ຫຼັກ3"
-            // ມີຕົວໜັງສືປົນ ຈຶ່ງບໍ່ເຂົ້າກົດນີ້ ຍັງເຮັດວຽກຄືເກົ່າ
-            const badBare = suffixPart === "" && /^[\d.,\-/\s]+$/.test(numberPart)
-                && numberPart.split(/[.,\-/\s]+/).some(g => g.length === 1);
-            if (badBare) skippedLines.push(cleanLine);
-            parsedLines.push({ numberPart, suffixPart, originalSuffix: suffixPart, sectionType: leadingType || currentSectionType, leadingType, badBare });
+            parsedLines.push({ numberPart, suffixPart, originalSuffix: suffixPart, sectionType: leadingType || currentSectionType, leadingType });
         });
 
         // Trailing label back-prop: label ທ້າຍບິນ (ບໍ່ມີ number lines ຫຼັງ) →
@@ -2613,7 +2601,6 @@
 
         parsedLines.forEach(pl => {
             blockLevelType = pl.sectionType; // update per-line so parsePrice reads correct section type
-            if (pl.badBare) return;          // ແຖວຂຽນຜິດ ➔ ບໍ່ນັບ ບໍ່ຄິດເງິນ ບໍ່ກວດຖືກ
             let numberPart = pl.numberPart;
             let suffixPart = pl.suffixPart;
             if (suffixPart !== "ບໍ່ມີລາຄາ") {
@@ -2795,15 +2782,6 @@
         if (blockGrandTotalBaht > 0) totalSumHTML += `<span class="price-text baht-price">${blockGrandTotalBaht.toLocaleString()} ฿</span>`;
         if (totalSumHTML === "") totalSumHTML = `<span class="price-text">0</span>`;
 
-        // ເຕືອນແຖວທີ່ຖືກຂ້າມ — ຕ້ອງໂຊຢູ່ນອກ ບໍ່ແມ່ນໃນກ່ອງລາຍລະອຽດທີ່ພັບໄວ້
-        // ບໍ່ດັ່ງນັ້ນເງິນຫາຍໄປໂດຍບໍ່ມີໃຜເຫັນ ຊຶ່ງອັນຕະລາຍກວ່າຄິດເກີນ
-        const skipBadgeHTML = skippedLines.length === 0 ? "" :
-            `<div style="width:100%;margin-top:8px;padding:8px 10px;border-left:4px solid #dc2626;` +
-            `background:rgba(220,38,38,0.12);color:#dc2626;text-align:left;font-size:14px;">` +
-            `⚠️ <b>ຂ້າມ ${skippedLines.length} ແຖວ ບໍ່ໄດ້ຄິດເງິນ</b> (ບໍ່ມີ <b>=</b> ຫຼື <b>:</b> ແລະ ມີເລກ 1 ໂຕ ປົນ)<br>` +
-            skippedLines.map(s => `• <b>${s}</b>`).join('<br>') +
-            `<br><span style="font-size:12px;">ຖ້າຕ້ອງການຄິດ ໃຫ້ຂຽນຄືນເປັນ <b>11=5</b></span></div>`;
-
         const summaryItemHTML = `
             <div class="summary-list-item" style="${hasHit ? 'border-left:5px solid #ff9800;background-color:rgba(255,193,7,0.1);' : ''}">
                 <div style="width:100%;display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;">
@@ -2811,7 +2789,6 @@
                     <span>ຈຳນວນ: <b>${totalNumbers.toLocaleString()}</b> ໂຕ</span>
                     <span>ຍອດເງິນ: ${totalSumHTML}</span>
                 </div>
-                ${skipBadgeHTML}
                 ${hitBadgeHTML}
             </div>`;
 
@@ -2822,7 +2799,6 @@
                     <span style="font-size:12px;font-weight:normal;color:#888;">ຄລິກເພື່ອເປີດ ⬇️</span>
                 </summary>
                 <div class="detail-content">
-                    ${skipBadgeHTML}
                     <p>📌 ຈຳນວນແຖວ: <b>${totalLines.toLocaleString()}</b> ແຖວ</p>
                     <p>📌 ຈຳນວນໂຕເລກທີ່ບໍ່ຊ້ຳກັນ: <b>${uniquePrefixes.toLocaleString()}</b> ໂຕ</p>
                     <h4>🔢 ແຍກຕາມປະເພດໂຕເລກ</h4>
