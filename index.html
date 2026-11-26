@@ -2488,6 +2488,13 @@
                 }
             }
 
+            // ແຖວສະຫຼຸບຂອງລູກຄ້າ ເຊັ່ນ "ລວມ80฿" — ບໍ່ແມ່ນການແທງ ແຕ່ເປັນການແຈ້ງຍອດ
+            // ➔ 80 ເຄີຍຮັບລາຄາຈາກແຖວເທິງ (20฿) ➔ ບິນ 80฿ ກາຍເປັນ 100฿
+            // ➔ ແລະ 80 ຍັງຖືກກວດວ່າຖືກຫວຍ ➔ ອາດຈ່າຍລາງວັນໃຫ້ເລກທີ່ບໍ່ໄດ້ແທງ
+            // ກວດກ່ອນ numLinesAfterLabel++ ➔ ແຖວນີ້ບໍ່ນັບເປັນແຖວເລກ ປ້າຍທ້າຍບິນຈຶ່ງຍັງຍ້ອນກັບໄດ້
+            const sumM = cleanLine.match(/(ລວມ|ลวม|รวม)/i);
+            if (sumM && /\d/.test(cleanLine.slice(sumM.index + sumM[0].length))) return;
+
             numLinesAfterLabel++;
             // Detect leading direction marker on the same line as a bet
             // (e.g. "ບລ 29-69-...=5" → ບລ applies to whole bill, strip from numberPart)
