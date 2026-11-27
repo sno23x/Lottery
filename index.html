@@ -2496,9 +2496,12 @@
             if (sumM && /\d/.test(cleanLine.slice(sumM.index + sumM[0].length))) return;
 
             numLinesAfterLabel++;
+            // "โตละ20฿" / "ໂຕລະ20฿" / "ຕົວລະ20฿" / "ตัวละ20฿" ແປວ່າ "ລາຄາໂຕລະ 20฿" ➔ ຖືເທົ່າກັບ "="
+            // ລູກຄ້າສົ່ງແບບນີ້ປະຈຳ ແລະ ເມື່ອກ່ອນລະບົບຫາລາຄາບໍ່ເຫັນ ➔ ບິນເປັນ 0
+            // ກາຍເປັນແຖວ "=20฿" ທີ່ບໍ່ມີເລກ ➔ ລາຄາຍ້ອນຂຶ້ນໃສ່ເລກແຖວເທິງທັງໝົດ
+            let working = cleanLine.replace(/(ໂຕ|โต|ຕົວ|ตัว)\s*(ລະ|ละ)\s*/i, '='), leadingType = null;
             // Detect leading direction marker on the same line as a bet
             // (e.g. "ບລ 29-69-...=5" → ບລ applies to whole bill, strip from numberPart)
-            let working = cleanLine, leadingType = null;
             const leadingDirRE = /^(ບລ|ບົນ\s*[-]?\s*ລ່າງ|ບ\s*[.-]?\s*ລ|บล|บน\s*[-]?\s*ล่าง|บ\s*[.-]?\s*ล|ລບ|ລ່າງ\s*[-]?\s*ບົນ|ລ\s*[.-]?\s*ບ|ลบ|ล่าง\s*[-]?\s*บน|ล\s*[.-]?\s*บ|ບົນ|บน|ລ່າງ|ล่าง)\s+(?=\d|ຫ|ห|ຮ|ລ|ล)/i;
             const leadM = working.match(leadingDirRE);
             if (leadM) {
